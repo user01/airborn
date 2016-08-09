@@ -18,7 +18,11 @@ module.exports = {
   resolve: {
     extensions: ['', '.webpack.js', '.web.js', '.ts', '.js', '.less', '.css'],
     modulesDirectories: ['node_modules', 'src'],
-    fallback: path.join(__dirname, 'node_modules')
+    fallback: path.join(__dirname, 'node_modules'),
+    alias: {
+      webworkify: 'webworkify-webpack',
+      'mapbox-gl': path.resolve('./node_modules/mapbox-gl/dist/mapbox-gl.js')
+    }
   },
   plugins: [
     new webpack.DefinePlugin({ "global.GENTLY": false })
@@ -31,9 +35,15 @@ module.exports = {
   },
   module: {
     loaders: [
+      { test: /\.json$/, loader: "json" },
       { test: /\.ts$|\.tsx$/, loader: 'ts-loader?sourceMap' },
       { test: /\.less$/, loader: "style!css!less" },
-      { test: /\.css$/, loader: "style!css!less" }
+      { test: /\.css$/, loader: "style!css!less" },
+      {
+        test: /\.js$/,
+        include: path.resolve(__dirname, 'node_modules/webworkify/index.js'),
+        loader: 'worker'
+      }
     ]
   }
 };

@@ -40,6 +40,7 @@ module.exports = {
   },
   module: {
     loaders: [
+      { test: /\.json$/, loader: "json" },
       { test: /\.ts$|\.tsx$/, loader: 'ts-loader?sourceMap' },
       { test: /\.less$/, loader: "style!css!less" },
       { test: /\.css$/, loader: "style!css!less" }
