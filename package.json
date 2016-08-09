@@ -1,0 +1,40 @@
+{
+  "name": "airborn",
+  "version": "0.0.1",
+  "description": "Data Visualization for things born on the air",
+  "main": "index.js",
+  "scripts": {
+    "watch-simple": "./node_modules/.bin/webpack  --progress --colors --watch --config webpack.config.js",
+    "build": "./node_modules/.bin/webpack --config webpack.production.js",
+    "production": "./node_modules/.bin/webpack -p --config webpack.production.js",
+    "watch": "node_modules/.bin/webpack-dev-server -d --colors --content-base build/ --hot --inline --port 9105 --config webpack.config.js",
+    "serve": "./node_modules/.bin/ws -d ./build/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.com:root77/airborn.git"
+  },
+  "author": "Codex10 <dev@codex10.com> (http://codex10.com)",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.4.1",
+    "moment": "^2.14.1",
+    "ramda": "^0.22.1",
+    "react": "^15.3.0",
+    "react-dom": "^15.3.0"
+  },
+  "devDependencies": {
+    "css-loader": "^0.23.1",
+    "file-loader": "^0.9.0",
+    "json-loader": "^0.5.4",
+    "less": "^2.7.1",
+    "less-loader": "^2.2.3",
+    "local-web-server": "^1.2.6",
+    "style-loader": "^0.13.1",
+    "ts-loader": "^0.8.2",
+    "typescript": "^1.8.10",
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.14.1"
+  }
+}
