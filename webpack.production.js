@@ -18,7 +18,11 @@ module.exports = {
   resolve: {
     extensions: ['', '.webpack.js', '.web.js', '.ts', '.js', '.less', '.css'],
     modulesDirectories: ['node_modules', 'src'],
-    fallback: path.join(__dirname, 'node_modules')
+    fallback: path.join(__dirname, 'node_modules'),
+    alias: {
+      webworkify: 'webworkify-webpack',
+      'mapbox-gl': path.resolve('./node_modules/mapbox-gl/dist/mapbox-gl.js')
+    }
   },
   plugins: [
     new webpack.DefinePlugin({ "global.GENTLY": false }),
