@@ -1,0 +1,6 @@
+npm-debug.log
+*.blend1
+*.blend2
+build/assets/*.log
+.DS_Store
+build/generated/**
