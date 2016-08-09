@@ -1,3 +1,10 @@
 
+import Map from './components/map.tsx'
 
-console.log(`Hello World!`);
+
+const initScreen = () => {
+  console.log('Screen online');
+  const map = new Map(document.getElementById('map'));
+}
+
+document.addEventListener('DOMContentLoaded', initScreen, false);
