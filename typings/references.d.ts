@@ -5,3 +5,5 @@
 /// <reference path="./react-dom.d.ts" />
 /// <reference path="./bluebird.d.ts" />
 /// <reference path="./moment.d.ts" />
+/// <reference path="./geojson.d.ts" />
+/// <reference path="./mapbox-gl.d.ts" />
