@@ -88,7 +88,11 @@ const planeDbDocsToState = (planeDbDocs) => {
   return R.pipe(
     R.groupBy(R.prop('hex')),
     R.map((listForPlane) => {
-      const flightNumber = R.pipe(R.head, R.prop('flight'))(listForPlane);
+      const flightNumber = R.pipe(
+        R.head,
+        R.prop('flight'),
+        R.trim
+      )(listForPlane);
       const positions = R.map((doc) => {
         return {
           lat: doc.lat,
