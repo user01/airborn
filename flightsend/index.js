@@ -39,7 +39,7 @@ const pullPlaneDataAndPost = () => {
       time: currentTime.toISOString()
     };
 
-    postJson(postURL, postPayload, function (error, result) {
+    postjson(postURL, postPayload, function (error, result) {
       if (error) {
         console.error(`Fetch Error for ${currentTimeStr}`);
         console.error(error);
