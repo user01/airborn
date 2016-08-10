@@ -26,7 +26,8 @@ export class ThreeTest {
   }
 
   private init = () => {
-    var wdt = 250;
+    const threeDomElm = document.getElementById('designer');
+    var wdt = 405;
     var hgh = 250;
 
     var scene = new THREE.Scene();
