@@ -12,7 +12,7 @@ const Datastore = require('nedb'),
 
 
 const token = "184a711d-2a72-4160-afa1-b46c26277184";
-const rootUrl = '/airborn';
+const rootUrl = '/airborn/';
 
 
 
@@ -30,16 +30,23 @@ server.use(restify.throttle({
   // }
 }));
 
-function respond(req, res, next) {
+const cleanStr = (str, def) => {
+    var deft = def ? def : null;
+    if (!_.isString(str)) return deft;
+    var first = str.split(/\s+/)[0];
+    return str.substr(0, 1024);
+}
+
+const respondAlive = (req, res, next) => {
   var name = cleanStr(req.params.name);
   var response = `Greetings ${name}, the time is ${(new Date()).toISOString()}`;
   res.send(response);
   next();
 }
-server.get(rootUrl + 'alive', respond);
-server.head(rootUrl + 'alive', respond);
-server.get(rootUrl + 'alive/:name', respond);
-server.head(rootUrl + 'alive/:name', respond);
+server.get(rootUrl + 'alive', respondAlive);
+server.head(rootUrl + 'alive', respondAlive);
+server.get(rootUrl + 'alive/:name', respondAlive);
+server.head(rootUrl + 'alive/:name', respondAlive);
 
 const handlePlaneUpdate = (req, res, next) => {
   try {
