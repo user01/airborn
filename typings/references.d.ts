@@ -7,3 +7,4 @@
 /// <reference path="./moment.d.ts" />
 /// <reference path="./geojson.d.ts" />
 /// <reference path="./mapbox-gl.d.ts" />
+/// <reference path="./three.d.ts" />

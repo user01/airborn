@@ -32,7 +32,7 @@ module.exports = {
         warnings: false
       },
       mangle: {
-        except: ['BABYLON', 'exports', 'require']
+        except: ['BABYLON', 'exports', 'require', 'THREE']
       }
     })
   ],
