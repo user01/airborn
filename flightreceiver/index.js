@@ -31,10 +31,10 @@ server.use(restify.throttle({
 }));
 
 const cleanStr = (str, def) => {
-    var deft = def ? def : null;
-    if (!_.isString(str)) return deft;
-    var first = str.split(/\s+/)[0];
-    return str.substr(0, 1024);
+  const deft = def ? def : null;
+  if (typeof (str) != 'string') return deft;
+  const first = str.split(/\s+/)[0];
+  return str.substr(0, 1024);
 }
 
 const respondAlive = (req, res, next) => {
