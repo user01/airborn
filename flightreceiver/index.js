@@ -18,6 +18,7 @@ const rootUrl = '/airborn/';
 
 const server = restify.createServer();
 server.use(restify.CORS());
+server.use(restify.bodyParser());
 server.use(restify.throttle({
   rate: 0.085 * 40, //~ 5 per minute * 40
   burst: 15,
