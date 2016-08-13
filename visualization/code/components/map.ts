@@ -14,6 +14,7 @@ import * as mapboxgl from 'mapbox-gl';
 */
 export class Map {
 
+  public map: mapboxgl.Map;
 
   constructor(private rootElement: HTMLElement) {
     this.render();
@@ -21,14 +22,43 @@ export class Map {
 
   private render = () => {
     mapboxgl.accessToken = 'pk.eyJ1Ijoicm9vdDc3IiwiYSI6ImNpcm1zdzNsdDA4eGZmbG04YXVrc2ttMHYifQ.Xh7pNJm_GMFLrHMVCguMrw';
-    var map = new mapboxgl.Map({
+    this.map = new mapboxgl.Map({
       container: this.rootElement,
       style: 'mapbox://styles/root77/cirmswz9m0000g5nl6lbfih36',
       attributionControl: false,
-      center: [-75.284247, 40.528183],
-      zoom: 13
+      // center: [-75.284247, 40.528183],
+      center: [-0.1, 51.5119112],
+      // zoom: 13
+      zoom: 10.5,
     });
 
+    this.map.scrollZoom.disable()
+    this.map.addControl(new mapboxgl.Navigation());
+
+
+    setTimeout(() => {
+      console.log('Flying!');
+
+      this.map.flyTo({
+        // These options control the ending camera position: centered at
+        // the target, at zoom level 9, and north up.
+        center: [-0.4, 52.5119112],
+        zoom: 9,
+        bearing: 0,
+
+        // These options control the flight curve, making it move
+        // slowly and zoom out almost completely before starting
+        // to pan.
+        speed: 0.2, // make the flying slow
+        curve: 1, // change the speed at which it zooms out
+
+        // This can be any easing function: it takes a number between
+        // 0 and 1 and returns another number between 0 and 1.
+        easing: (t) => {
+          return t;
+        }
+      });
+    }, 2000);
 
     // mapboxgl.accessToken = 'pk.eyJ1IjoiZW5qYWxvdCIsImEiOiJjaWhtdmxhNTIwb25zdHBsejk0NGdhODJhIn0.2-F2hS_oTZenAWc0BMf_uw'
 
