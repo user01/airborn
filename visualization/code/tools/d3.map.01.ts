@@ -96,7 +96,7 @@ export class D3Map01 {
           planeSet.forEach((d) => {
             const p = d3Projection([d.lon, d.lat]);
             ctx.beginPath();
-            ctx.arc(p[0], p[1], 1 + Math.round(7 * d.fraction), 0, Math.PI * 2);
+            ctx.arc(p[0], p[1], 1 + this.map.getZoom() * 0.5 * d.fraction, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
           });
