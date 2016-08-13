@@ -127,42 +127,45 @@ export class D3Map01 {
   }
 
   private loadData = () => {
+    const url = 'https://alpha.codex10.com/airborn/planes/40/184a711d-2a72-4160-afa1-b46c26277184';
+    d3.json(url, (err, data: any) => {
 
-    const localData = R.map((datum) => R.merge(datum, { date: moment(datum.date) }), data);
+      const localData = R.map((datum: any) => R.merge(datum, { date: moment(datum.date) }), data);
 
 
-    this.planeDots = R.pipe(
-      R.groupBy(R.prop('hex')),
-      R.values,
-      R.map((entrySet) => {
+      this.planeDots = R.pipe(
+        R.groupBy(R.prop('hex')),
+        R.values,
+        R.map((entrySet) => {
 
-        const minDate =
-          (<any>R.pipe)(
-            R.map(R.prop('date')),
-            moment.min
-          )(entrySet);
-        const maxDate =
-          (<any>R.pipe)(
-            R.map(R.prop('date')),
-            moment.max
-          )(entrySet);
-        const millisecondsRange = maxDate.diff(minDate);
+          const minDate =
+            (<any>R.pipe)(
+              R.map(R.prop('date')),
+              moment.min
+            )(entrySet);
+          const maxDate =
+            (<any>R.pipe)(
+              R.map(R.prop('date')),
+              moment.max
+            )(entrySet);
+          const millisecondsRange = maxDate.diff(minDate);
 
-        return R.map((datum: any) => {
-          return {
-            lon: datum.lon,
-            lat: datum.lat,
-            hex: datum.hex,
-            fraction: moment(datum.date).diff(minDate) / millisecondsRange,
-            date: datum.date.valueOf()
-          };
-        }, entrySet);
+          return R.map((datum: any) => {
+            return {
+              lon: datum.lon,
+              lat: datum.lat,
+              hex: datum.hex,
+              fraction: moment(datum.date).diff(minDate) / millisecondsRange,
+              date: datum.date.valueOf()
+            };
+          }, entrySet);
 
-      }),
-      R.flatten
-    )(localData);
+        }),
+        R.flatten
+      )(localData);
 
-    this.init();
+      this.init();
+    });
   }
 
 }
