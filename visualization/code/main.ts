@@ -9,8 +9,8 @@ const initScreen = () => {
   console.log('Screen online');
   require('../styles/main.less');
   const map = new Map(document.getElementById('map'));
-  const threeTest = new ThreeTest(document.getElementById('threejs'));
-  const d3test = new D3Test(document.getElementById('d3'));
+  // const threeTest = new ThreeTest(document.getElementById('threejs'));
+  // const d3test = new D3Test(document.getElementById('d3'));
   const d3map01 = new D3Map01(map.map);
 }
 

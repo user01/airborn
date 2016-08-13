@@ -26,10 +26,10 @@ export class Map {
       container: this.rootElement,
       style: 'mapbox://styles/root77/cirmswz9m0000g5nl6lbfih36',
       attributionControl: false,
-      // center: [-75.284247, 40.528183],
-      center: [-0.1, 51.5119112],
-      // zoom: 13
-      zoom: 10.5,
+      center: [-75.284247, 40.528183],
+      // center: [-0.1, 51.5119112],
+      zoom: 13
+      // zoom: 10.5,
     });
 
     this.map.scrollZoom.disable()
@@ -42,8 +42,8 @@ export class Map {
       this.map.flyTo({
         // These options control the ending camera position: centered at
         // the target, at zoom level 9, and north up.
-        center: [-0.4, 52.5119112],
-        zoom: 9,
+        center: [-75.224247, 40.578183],
+        zoom: 8,
         bearing: 0,
 
         // These options control the flight curve, making it move

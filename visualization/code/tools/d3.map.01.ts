@@ -2,12 +2,15 @@
 /// <reference path="../../typings/references.d.ts" />
 
 
-// import * as R from 'ramda';
+import * as R from 'ramda';
 // import * as React from 'react';
 // import * as ReactDOM from 'react-dom';
 // import * as mapboxgl from 'mapbox-gl';
 // import * as d3 from 'd3';
 // import * as topojson from 'topojson';
+
+import data from './local.data.tmp';
+import colorlist from './color.list';
 
 declare var topojson: any;
 
@@ -22,6 +25,8 @@ export class D3Map01 {
   private controls;
   private width: number;
   private height: number;
+
+  private planeDots: Array<{ lon: number, lat: number }> = [];
 
   constructor(private map: any) {
     this.init();
@@ -79,13 +84,46 @@ export class D3Map01 {
 
         ctx.fillStyle = "#0082a3";
         ctx.strokeStyle = "#004d60";
-        points.features.forEach((d) => {
-          const p = d3Projection(d.geometry.coordinates);
+        // points.features.forEach((d) => {
+        //   const p = d3Projection(d.geometry.coordinates);
+        //   ctx.beginPath();
+        //   ctx.arc(p[0], p[1], 6, 0, Math.PI * 2);
+        //   ctx.fill();
+        //   ctx.stroke();
+        // });
+        this.planeDots.forEach((d) => {
+          const p = d3Projection([d.lon, d.lat]);
           ctx.beginPath();
           ctx.arc(p[0], p[1], 6, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
-        })
+        });
+
+        const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
+        // console.log(planeHexes);
+        const colorScale = d3.scale.ordinal()
+          .domain(planeHexes)
+          .range(R.take(planeHexes.length, colorlist));
+
+
+        const groupedPlanes = R.pipe(
+          R.groupBy(R.prop('hex')),
+          R.values,
+          R.map((planeSet: Array<{ lon: number, lat: number, hex: string }>) => {
+            // ctx.fillStyle = "#0082a3";
+            const hex = R.pipe(R.head, R.prop('hex'))(planeSet);
+            ctx.fillStyle = colorScale(hex);
+            ctx.strokeStyle = "#004d60";
+            planeSet.forEach((d) => {
+              const p = d3Projection([d.lon, d.lat]);
+              ctx.beginPath();
+              ctx.arc(p[0], p[1], 6, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+            });
+          })
+        )(this.planeDots);
+        // console.log(0, groupedPlanes));
 
       }
 
@@ -105,7 +143,12 @@ export class D3Map01 {
   }
 
   private animate = () => {
-
+    this.planeDots = data;
+    // const url = 'https://alpha.codex10.com/airborn/planes/40/184a711d-2a72-4160-afa1-b46c26277184';
+    // d3.json(url, (err, data) => {
+    //   console.log(`Currently ${data.length} plane entries`);
+    //   this.planeDots = data;
+    // });
   }
 
 }
