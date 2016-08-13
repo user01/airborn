@@ -26,7 +26,7 @@ export class ThreeTest {
   }
 
   private init = () => {
-    const threeDomElm = document.getElementById('designer');
+    const threeDomElm = this.rootElement;
     var wdt = 405;
     var hgh = 250;
 
@@ -35,7 +35,7 @@ export class ThreeTest {
 
     var renderer = new THREE.WebGLRenderer({ alpha: true });
     renderer.setSize(wdt, hgh);
-    document.getElementById('designer').appendChild(renderer.domElement);
+    this.rootElement.appendChild(renderer.domElement);
 
     var geometry = new THREE.CubeGeometry(1, 1, 1);
     var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
