@@ -8,6 +8,7 @@ import * as R from 'ramda';
 // import * as mapboxgl from 'mapbox-gl';
 // import * as d3 from 'd3';
 // import * as topojson from 'topojson';
+import * as moment from 'moment';
 
 import data from './local.data.tmp';
 import colorlist from './color.list';
@@ -91,13 +92,13 @@ export class D3Map01 {
         //   ctx.fill();
         //   ctx.stroke();
         // });
-        this.planeDots.forEach((d) => {
-          const p = d3Projection([d.lon, d.lat]);
-          ctx.beginPath();
-          ctx.arc(p[0], p[1], 6, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        });
+        // this.planeDots.forEach((d) => {
+        //   const p = d3Projection([d.lon, d.lat]);
+        //   ctx.beginPath();
+        //   ctx.arc(p[0], p[1], 6, 0, Math.PI * 2);
+        //   ctx.fill();
+        //   ctx.stroke();
+        // });
 
         const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
         // console.log(planeHexes);
@@ -109,7 +110,7 @@ export class D3Map01 {
         const groupedPlanes = R.pipe(
           R.groupBy(R.prop('hex')),
           R.values,
-          R.map((planeSet: Array<{ lon: number, lat: number, hex: string }>) => {
+          R.map((planeSet: Array<{ lon: number, lat: number, hex: string, fraction: number }>) => {
             // ctx.fillStyle = "#0082a3";
             const hex = R.pipe(R.head, R.prop('hex'))(planeSet);
             ctx.fillStyle = colorScale(hex);
@@ -117,7 +118,7 @@ export class D3Map01 {
             planeSet.forEach((d) => {
               const p = d3Projection([d.lon, d.lat]);
               ctx.beginPath();
-              ctx.arc(p[0], p[1], 6, 0, Math.PI * 2);
+              ctx.arc(p[0], p[1], 1 + Math.round(7 * d.fraction), 0, Math.PI * 2);
               ctx.fill();
               ctx.stroke();
             });
@@ -143,7 +144,71 @@ export class D3Map01 {
   }
 
   private animate = () => {
-    this.planeDots = data;
+
+    const localData = R.map((datum) => R.merge(datum, { date: moment(datum.date) }), data);
+
+
+    // console.log(localData);
+
+    const minDate =
+      (<any>R.pipe)(
+        R.map(R.prop('date')),
+        moment.min
+      )(localData);
+    const maxDate =
+      (<any>R.pipe)(
+        R.map(R.prop('date')),
+        moment.max
+      )(localData);
+
+    // console.log(maxDate);
+
+    const millisecondsRange = maxDate.diff(minDate);
+
+    this.planeDots = R.map((datum) => {
+      return {
+        lon: datum.lon,
+        lat: datum.lat,
+        hex: datum.hex,
+        fraction: moment(datum.date).diff(minDate) / millisecondsRange
+      }
+    }, localData);
+
+
+    this.planeDots = R.pipe(
+      R.groupBy(R.prop('hex')),
+      R.values,
+      R.map((entrySet) => {
+
+        const minDate =
+          (<any>R.pipe)(
+            R.map(R.prop('date')),
+            moment.min
+          )(entrySet);
+        const maxDate =
+          (<any>R.pipe)(
+            R.map(R.prop('date')),
+            moment.max
+          )(entrySet);
+        const millisecondsRange = maxDate.diff(minDate);
+
+        return R.map((datum: any) => {
+          return {
+            lon: datum.lon,
+            lat: datum.lat,
+            hex: datum.hex,
+            fraction: moment(datum.date).diff(minDate) / millisecondsRange
+          }
+        }, entrySet);
+
+      }),
+      R.flatten
+    )(localData);
+
+    console.log(R.map(R.prop('fraction'), this.planeDots));
+
+
+    // this.planeDots = data;
     // const url = 'https://alpha.codex10.com/airborn/planes/40/184a711d-2a72-4160-afa1-b46c26277184';
     // d3.json(url, (err, data) => {
     //   console.log(`Currently ${data.length} plane entries`);
