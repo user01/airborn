@@ -110,11 +110,29 @@ export class D3Map01 {
         const groupedPlanes = R.pipe(
           R.groupBy(R.prop('hex')),
           R.values,
-          R.map((planeSet: Array<{ lon: number, lat: number, hex: string, fraction: number }>) => {
+          // R.head,
+          R.map((planeSet: Array<{ lon: number, lat: number, hex: string, fraction: number, date: number }>) => {
             // ctx.fillStyle = "#0082a3";
             const hex = R.pipe(R.head, R.prop('hex'))(planeSet);
+            // if (hex != 'a81005') return;
+            // console.log(planeSet);
+            // console.log(
+            //   R.sortBy(
+            //     // (a, b) => a.date - b.date,
+            //     R.prop('fraction'),
+            //     // R.prop('date'),
+            //     planeSet
+            //   )
+            // );
+            planeSet = R.sortBy(
+              // (a, b) => a.date - b.date,
+              R.prop('fraction'),
+              // R.prop('date'),
+              planeSet
+            );
             ctx.fillStyle = colorScale(hex);
             ctx.strokeStyle = "#004d60";
+            ctx.strokeStyle = ctx.fillStyle;
             planeSet.forEach((d) => {
               const p = d3Projection([d.lon, d.lat]);
               ctx.beginPath();
@@ -122,9 +140,51 @@ export class D3Map01 {
               ctx.fill();
               ctx.stroke();
             });
+
+
+
+            // console.log('Starting path');
+            ctx.beginPath();
+            // const p = d3Projection([planeSet[0].lon, planeSet[0].lat]);
+            // ctx.moveTo(p[0], p[1]);
+
+            planeSet.forEach((d) => {
+              const p = d3Projection([d.lon, d.lat]);
+              // const p = d3Projection([d.lon, d.lat]);
+              // console.log(`Drawing to ${p[0]},${p[1]} with fraction ${d.fraction}`);
+              ctx.lineTo(p[0], p[1]);
+              // ctx.moveTo(p[0], p[1]);
+            });
+
+            // console.log('Done with path');
+            // ctx.closePath();
+            ctx.stroke();
+
+            // draw lines
+            // const pairs = R.zip(
+            //   R.concat([null], planeSet),
+            //   R.concat(planeSet, [null])
+            // );
+            // R.pipe(
+            //   R.filter((pair)=>{
+            //     return pair[0] != null && pair[1] != null;
+            //   }),
+            //   R.forEach((pair)=>{
+            //     //draw from
+            //   })
+            // )(pairs);
+
+
           })
         )(this.planeDots);
         // console.log(0, groupedPlanes));
+
+        // ctx.beginPath();
+        // ctx.lineTo(150, 150);
+        // ctx.lineTo(250, 250);
+        // ctx.lineTo(250, 450);
+
+        // ctx.stroke();
 
       }
 
@@ -148,31 +208,31 @@ export class D3Map01 {
     const localData = R.map((datum) => R.merge(datum, { date: moment(datum.date) }), data);
 
 
-    // console.log(localData);
+    // // console.log(localData);
 
-    const minDate =
-      (<any>R.pipe)(
-        R.map(R.prop('date')),
-        moment.min
-      )(localData);
-    const maxDate =
-      (<any>R.pipe)(
-        R.map(R.prop('date')),
-        moment.max
-      )(localData);
+    // const minDate =
+    //   (<any>R.pipe)(
+    //     R.map(R.prop('date')),
+    //     moment.min
+    //   )(localData);
+    // const maxDate =
+    //   (<any>R.pipe)(
+    //     R.map(R.prop('date')),
+    //     moment.max
+    //   )(localData);
 
-    // console.log(maxDate);
+    // // console.log(maxDate);
 
-    const millisecondsRange = maxDate.diff(minDate);
+    // const millisecondsRange = maxDate.diff(minDate);
 
-    this.planeDots = R.map((datum) => {
-      return {
-        lon: datum.lon,
-        lat: datum.lat,
-        hex: datum.hex,
-        fraction: moment(datum.date).diff(minDate) / millisecondsRange
-      }
-    }, localData);
+    // this.planeDots = R.map((datum) => {
+    //   return {
+    //     lon: datum.lon,
+    //     lat: datum.lat,
+    //     hex: datum.hex,
+    //     fraction: moment(datum.date).diff(minDate) / millisecondsRange
+    //   }
+    // }, localData);
 
 
     this.planeDots = R.pipe(
@@ -197,15 +257,16 @@ export class D3Map01 {
             lon: datum.lon,
             lat: datum.lat,
             hex: datum.hex,
-            fraction: moment(datum.date).diff(minDate) / millisecondsRange
-          }
+            fraction: moment(datum.date).diff(minDate) / millisecondsRange,
+            date: datum.date.valueOf()
+          };
         }, entrySet);
 
       }),
       R.flatten
     )(localData);
 
-    console.log(R.map(R.prop('fraction'), this.planeDots));
+    // console.log(R.map(R.prop('fraction'), this.planeDots));
 
 
     // this.planeDots = data;

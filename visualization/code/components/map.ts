@@ -32,8 +32,8 @@ export class Map {
       // zoom: 10.5,
     });
 
-    this.map.scrollZoom.disable()
-    this.map.addControl(new mapboxgl.Navigation());
+    // this.map.scrollZoom.disable()
+    // this.map.addControl(new mapboxgl.Navigation());
 
 
     setTimeout(() => {
@@ -49,7 +49,7 @@ export class Map {
         // These options control the flight curve, making it move
         // slowly and zoom out almost completely before starting
         // to pan.
-        speed: 0.5, // make the flying slow
+        speed: 0.95, // make the flying slow
         // speed: 0.2, // make the flying slow
         curve: 1, // change the speed at which it zooms out
 
