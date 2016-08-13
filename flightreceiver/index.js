@@ -137,8 +137,8 @@ const handlePlanes = (req, res, next) => {
     // {"hex":"44ccda", "flight":"", "lat":40.774267, "lon":-75.124574, "altitude":28150, "track":233, "speed":453}
     // ]
     // with _id and date fields
-    const json = planeDbDocsToState(results);
-    res.send(json);
+    // const json = planeDbDocsToState(results);
+    res.send(results);
     return next();
   });
 }
