@@ -19,18 +19,27 @@ export class D3Test {
   private scene;
   private camera;
   private controls;
+  private width: number;
+  private height: number;
 
   constructor(private rootElement: HTMLElement) {
     this.init();
     this.animate();
   }
 
+  private setSize = () => {
+    this.width = this.rootElement.clientWidth - 40;
+    this.height = this.rootElement.clientHeight - 40;
+    console.log(`Found size of ${this.width}x${this.height}`);
+  }
+
   private init = () => {
     require('../../styles/d3.less');
+    this.setSize();
 
-    var margin = { top: 20, right: 20, bottom: 30, left: 40 },
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+    var margin = { top: 40, right: 40, bottom: 40, left: 40 },
+      width = this.width - margin.left - margin.right,
+      height = this.height - margin.top - margin.bottom;
 
     var x = d3.scale.ordinal()
       .rangeRoundBands([0, width], .1);
