@@ -8,3 +8,4 @@
 /// <reference path="./geojson.d.ts" />
 /// <reference path="./mapbox-gl.d.ts" />
 /// <reference path="./three.d.ts" />
+/// <reference path="./d3.d.ts" />
