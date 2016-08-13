@@ -30,8 +30,7 @@ export class D3Map01 {
   private planeDots: Array<{ lon: number, lat: number }> = [];
 
   constructor(private map: any) {
-    this.init();
-    this.animate();
+    this.loadData();
   }
 
 
@@ -69,170 +68,67 @@ export class D3Map01 {
     // calculate the original d3 projection
     var d3Projection = getD3();
 
-    // var path = d3.geo.path();
+    const render = () => {
+      d3Projection = getD3();
+      ctx.clearRect(0, 0, width, height);
 
-    const url = "london_stations.topojson";
-    d3.json(url, (err, data) => {
-      const points = topojson.feature(data, data.objects.london_stations)
-      // console.log(data[0], getLL(data[0]), project(data[0]))
-      console.log(`Loaded ${data.length} elements`);
+      ctx.fillStyle = "#0082a3";
+      ctx.strokeStyle = "#004d60";
 
-
-      const render = () => {
-        d3Projection = getD3();
-        // path.projection(d3Projection);
-        ctx.clearRect(0, 0, width, height);
-
-        ctx.fillStyle = "#0082a3";
-        ctx.strokeStyle = "#004d60";
-        // points.features.forEach((d) => {
-        //   const p = d3Projection(d.geometry.coordinates);
-        //   ctx.beginPath();
-        //   ctx.arc(p[0], p[1], 6, 0, Math.PI * 2);
-        //   ctx.fill();
-        //   ctx.stroke();
-        // });
-        // this.planeDots.forEach((d) => {
-        //   const p = d3Projection([d.lon, d.lat]);
-        //   ctx.beginPath();
-        //   ctx.arc(p[0], p[1], 6, 0, Math.PI * 2);
-        //   ctx.fill();
-        //   ctx.stroke();
-        // });
-
-        const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
-        // console.log(planeHexes);
-        const colorScale = d3.scale.ordinal()
-          .domain(planeHexes)
-          .range(R.take(planeHexes.length, colorlist));
+      const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
+      const colorScale = d3.scale.ordinal()
+        .domain(planeHexes)
+        .range(R.take(planeHexes.length, colorlist));
 
 
-        const groupedPlanes = R.pipe(
-          R.groupBy(R.prop('hex')),
-          R.values,
-          // R.head,
-          R.map((planeSet: Array<{ lon: number, lat: number, hex: string, fraction: number, date: number }>) => {
-            // ctx.fillStyle = "#0082a3";
-            const hex = R.pipe(R.head, R.prop('hex'))(planeSet);
-            // if (hex != 'a81005') return;
-            // console.log(planeSet);
-            // console.log(
-            //   R.sortBy(
-            //     // (a, b) => a.date - b.date,
-            //     R.prop('fraction'),
-            //     // R.prop('date'),
-            //     planeSet
-            //   )
-            // );
-            planeSet = R.sortBy(
-              // (a, b) => a.date - b.date,
-              R.prop('fraction'),
-              // R.prop('date'),
-              planeSet
-            );
-            ctx.fillStyle = colorScale(hex);
-            ctx.strokeStyle = "#004d60";
-            ctx.strokeStyle = ctx.fillStyle;
-            planeSet.forEach((d) => {
-              const p = d3Projection([d.lon, d.lat]);
-              ctx.beginPath();
-              ctx.arc(p[0], p[1], 1 + Math.round(7 * d.fraction), 0, Math.PI * 2);
-              ctx.fill();
-              ctx.stroke();
-            });
-
-
-
-            // console.log('Starting path');
+      const groupedPlanes = R.pipe(
+        R.groupBy(R.prop('hex')),
+        R.values,
+        R.map((planeSet: Array<{ lon: number, lat: number, hex: string, fraction: number, date: number }>) => {
+          const hex = R.pipe(R.head, R.prop('hex'))(planeSet);
+          planeSet = R.sortBy(
+            R.prop('fraction'),
+            planeSet
+          );
+          ctx.fillStyle = colorScale(hex);
+          ctx.strokeStyle = "#004d60";
+          ctx.strokeStyle = ctx.fillStyle;
+          planeSet.forEach((d) => {
+            const p = d3Projection([d.lon, d.lat]);
             ctx.beginPath();
-            // const p = d3Projection([planeSet[0].lon, planeSet[0].lat]);
-            // ctx.moveTo(p[0], p[1]);
-
-            planeSet.forEach((d) => {
-              const p = d3Projection([d.lon, d.lat]);
-              // const p = d3Projection([d.lon, d.lat]);
-              // console.log(`Drawing to ${p[0]},${p[1]} with fraction ${d.fraction}`);
-              ctx.lineTo(p[0], p[1]);
-              // ctx.moveTo(p[0], p[1]);
-            });
-
-            // console.log('Done with path');
-            // ctx.closePath();
+            ctx.arc(p[0], p[1], 1 + Math.round(7 * d.fraction), 0, Math.PI * 2);
+            ctx.fill();
             ctx.stroke();
+          });
 
-            // draw lines
-            // const pairs = R.zip(
-            //   R.concat([null], planeSet),
-            //   R.concat(planeSet, [null])
-            // );
-            // R.pipe(
-            //   R.filter((pair)=>{
-            //     return pair[0] != null && pair[1] != null;
-            //   }),
-            //   R.forEach((pair)=>{
-            //     //draw from
-            //   })
-            // )(pairs);
+          // Draw the path
+          ctx.beginPath();
+          planeSet.forEach((d) => {
+            const p = d3Projection([d.lon, d.lat]);
+            ctx.lineTo(p[0], p[1]);
+          });
+          ctx.stroke();
 
+        })
+      )(this.planeDots);
 
-          })
-        )(this.planeDots);
-        // console.log(0, groupedPlanes));
+    };
 
-        // ctx.beginPath();
-        // ctx.lineTo(150, 150);
-        // ctx.lineTo(250, 250);
-        // ctx.lineTo(250, 450);
-
-        // ctx.stroke();
-
-      }
-
-      // re-render our visualization whenever the view changes
-      this.map.on("viewreset", () => {
-        render();
-      })
-      this.map.on("move", () => {
-        render();
-      })
-
-      // render our initial visualization
+    // re-render our visualization whenever the view changes
+    this.map.on("viewreset", () => {
       render();
-    });
+    })
+    this.map.on("move", () => {
+      render();
+    })
 
-
+    // render our initial visualization
+    render();
   }
 
-  private animate = () => {
+  private loadData = () => {
 
     const localData = R.map((datum) => R.merge(datum, { date: moment(datum.date) }), data);
-
-
-    // // console.log(localData);
-
-    // const minDate =
-    //   (<any>R.pipe)(
-    //     R.map(R.prop('date')),
-    //     moment.min
-    //   )(localData);
-    // const maxDate =
-    //   (<any>R.pipe)(
-    //     R.map(R.prop('date')),
-    //     moment.max
-    //   )(localData);
-
-    // // console.log(maxDate);
-
-    // const millisecondsRange = maxDate.diff(minDate);
-
-    // this.planeDots = R.map((datum) => {
-    //   return {
-    //     lon: datum.lon,
-    //     lat: datum.lat,
-    //     hex: datum.hex,
-    //     fraction: moment(datum.date).diff(minDate) / millisecondsRange
-    //   }
-    // }, localData);
 
 
     this.planeDots = R.pipe(
@@ -266,15 +162,7 @@ export class D3Map01 {
       R.flatten
     )(localData);
 
-    // console.log(R.map(R.prop('fraction'), this.planeDots));
-
-
-    // this.planeDots = data;
-    // const url = 'https://alpha.codex10.com/airborn/planes/40/184a711d-2a72-4160-afa1-b46c26277184';
-    // d3.json(url, (err, data) => {
-    //   console.log(`Currently ${data.length} plane entries`);
-    //   this.planeDots = data;
-    // });
+    this.init();
   }
 
 }
