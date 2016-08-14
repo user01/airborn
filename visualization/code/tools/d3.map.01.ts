@@ -29,8 +29,9 @@ export class D3Map01 {
 
   private planeDots: Array<{ lon: number, lat: number }> = [];
 
-  constructor(private map: any) {
+  constructor(private map: any, private rootElement: HTMLElement) {
     this.loadData();
+    this.renderChart();
   }
 
 
@@ -166,6 +167,66 @@ export class D3Map01 {
 
       this.init();
     });
+  }
+
+  private renderChart = () => {
+    const width = 450;
+    const height = 450;
+
+    var svg = d3.select(this.rootElement).append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      // .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      .attr("transform", "translate(0,0)");
+
+    //   svg.selectAll(".dot")
+    //   .data(data)
+    // .enter().append("rect")
+    //   .attr("class", "bar")
+    //   .attr("x", function(d) { return x(d.letter); })
+    //   .attr("width", x.rangeBand())
+    //   .attr("y", function(d) { return y(d.frequency); })
+    //   .attr("height", function(d) { return height - y(d.frequency); });
+
+    const datas = [
+      { x: 1 },
+      { x: 2 },
+      { x: 3 },
+      { x: 4 },
+      { x: 5 },
+      { x: 6 },
+    ];
+
+
+    svg
+      .selectAll('circle')
+      .data(datas)
+      .enter()
+      .append('circle')
+      .attr('cx', (d) => {
+        return d.x * 10;
+      })
+      .attr('cy', (d) => {
+        return d.x * 8;
+      })
+      .attr('r', (d) => {
+        return d.x;
+      })
+      .attr('fill', function (d, i) { return '#de9ed6'; })
+      .style('cursor', 'pointer')
+      .on('mouseover', function (d) {
+        // d3.select('svg g.chart #countryLabel')
+        //   .text(d.Country)
+        //   .transition()
+        //   .style('opacity', 1);
+      })
+      .on('mouseout', function (d) {
+        // d3.select('svg g.chart #countryLabel')
+        //   .transition()
+        //   .duration(1500)
+        //   .style('opacity', 0);
+      });
   }
 
 }
