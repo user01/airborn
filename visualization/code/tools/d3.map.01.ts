@@ -188,95 +188,71 @@ export class D3Map01 {
   private renderChart = () => {
     console.log('Rendering chart');
     // const width = this.map.getBounds()
-
-
-    const zoom = this.map.getZoom();
-    // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
-    const scale = (512) * 0.5 / Math.PI * Math.pow(2, zoom);
-    const center = this.map.getCenter();
-
-    const d3projection = d3.geo.mercator()
-      .center([center.lng, center.lat])
-      .translate([this.width / 2, this.height / 2])
-      .scale(scale);
-    // const d3projection = d3.geo.mercator()
-    //   .center([center.lng, center.lat])
-    //   .translate([width / 2, height / 2])
-    //   .scale(scale);
-
-
-
-    //   svg.selectAll(".dot")
-    //   .data(data)
-    // .enter().append("rect")
-    //   .attr("class", "bar")
-    //   .attr("x", function(d) { return x(d.letter); })
-    //   .attr("width", x.rangeBand())
-    //   .attr("y", function(d) { return y(d.frequency); })
-    //   .attr("height", function(d) { return height - y(d.frequency); });
-
-    // const datas = [
-    //   { x: 1, y: 7 },
-    //   { x: 2, y: 17 },
-    //   { x: 3, y: 27 },
-    //   { x: 4, y: 47 },
-    //   { x: 5, y: 67 },
-    //   { x: 6, y: 87 },
-    // ];
-    // const datas = this.planeDots;
-    // Quakertown, PA 18951
-    // 40.524153, -75.285368
-
-
     const datas = [
       { lon: 40.524153, lat: -75.285368 }
     ];
 
-    console.log(`Position: ${d3projection([datas[0].lon, datas[0].lat])}`);
-    console.log(`Position: ${d3projection([datas[0].lat, datas[0].lon])}`);
 
-    // const scaleX = d3.scale.linear()
-    //   .domain([0, d3.max(datas, R.prop('x'))])
-    //   .range([0, this.width]);
+    const render = () => {
+      console.log('Render!');
+      const zoom = this.map.getZoom();
+      // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
+      const scale = (512) * 0.5 / Math.PI * Math.pow(2, zoom);
+      const center = this.map.getCenter();
 
-    // const scaleY = d3.scale.linear()
-    //   .domain([0, d3.max(datas, R.prop('y'))])
-    //   .range([0, this.height]);
+      const d3projection = d3.geo.mercator()
+        .center([center.lng, center.lat])
+        .translate([this.width / 2, this.height / 2])
+        .scale(scale);
 
-    this.svg
-      .selectAll('circle')
-      .data(datas)
-      .enter()
-      .append('circle')
-      .attr('cx', (d) => {
-        return d3projection([d.lat, d.lon])[0];
-        // return scaleX(d.x);
-      })
-      .attr('cy', (d) => {
-        return d3projection([d.lat, d.lon])[1];
-        // return scaleY(d.y);
-        // return scaleY(d.y);
-      })
-      .attr('r', (d) => {
-        return 7;
-        // return d.x;
-      })
-      .attr('fill', function (d, i) { return '#de9ed6'; })
-      .style('cursor', 'pointer')
-      .on('mouseover', function (d) {
-        // d3.select('svg g.chart #countryLabel')
-        //   .text(d.Country)
-        //   .transition()
-        //   .style('opacity', 1);
-      })
-      .on('mouseout', function (d) {
-        // d3.select('svg g.chart #countryLabel')
-        //   .transition()
-        //   .duration(1500)
-        //   .style('opacity', 0);
-      });
+      const dots = this.svg
+        .selectAll('circle')
+        .data(datas);
+
+      dots
+        .enter()
+        .append('circle');
+
+      dots
+        .attr('cx', (d) => {
+          return d3projection([d.lat, d.lon])[0];
+          // return scaleX(d.x);
+        })
+        .attr('cy', (d) => {
+          return d3projection([d.lat, d.lon])[1];
+          // return scaleY(d.y);
+          // return scaleY(d.y);
+        })
+        .attr('r', (d) => {
+          return 7;
+          // return d.x;
+        })
+        .attr('fill', function (d, i) { return '#de9ed6'; })
+        .style('cursor', 'pointer')
+        .on('mouseover', function (d) {
+          // d3.select('svg g.chart #countryLabel')
+          //   .text(d.Country)
+          //   .transition()
+          //   .style('opacity', 1);
+        })
+        .on('mouseout', function (d) {
+          // d3.select('svg g.chart #countryLabel')
+          //   .transition()
+          //   .duration(1500)
+          //   .style('opacity', 0);
+        });
+
+    };
 
 
+    // re-render our visualization whenever the view changes
+    this.map.on("viewreset", () => {
+      render();
+    })
+    this.map.on("move", () => {
+      render();
+    })
+    render();
 
 
   }
