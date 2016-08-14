@@ -28,7 +28,7 @@ export class D3Map01 {
   private height: number;
   private svg: d3.Selection<any>;
 
-  private planeDots: Array<{ lon: number, lat: number }> = [];
+  private planeDots: Array<{ lon: number, lat: number, hex: string, fraction: number }> = [];
 
   constructor(private map: mapboxgl.Map, private rootElement: HTMLElement) {
     this.resize();
@@ -205,6 +205,11 @@ export class D3Map01 {
         .center([center.lng, center.lat])
         .translate([this.width / 2, this.height / 2])
         .scale(scale);
+      const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
+      const colorScale = d3.scale.ordinal()
+        .domain(planeHexes)
+        .range(R.take(planeHexes.length, colorlist));
+
 
       const dots = this.svg
         .selectAll('circle')
@@ -226,11 +231,8 @@ export class D3Map01 {
           // return scaleY(d.y);
           // return scaleY(d.y);
         })
-        .attr('r', (d) => {
-          return 7;
-          // return d.x;
-        })
-        .attr('fill', function (d, i) { return '#de9ed6'; })
+        .attr('r', (d) => `${zoom * 0.1 * d.fraction}em`)
+        .attr('fill', (d) => { return <string>colorScale(d.hex); })
         .style('cursor', 'pointer')
         .on('mouseover', function (d) {
           // d3.select('svg g.chart #countryLabel')
