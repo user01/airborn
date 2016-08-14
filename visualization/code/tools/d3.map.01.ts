@@ -187,14 +187,15 @@ export class D3Map01 {
 
   private renderChart = () => {
     console.log('Rendering chart');
-    // const width = this.map.getBounds()
     const datas = [
       { lon: 40.524153, lat: -75.285368 }
     ];
 
 
     const render = () => {
-      console.log('Render!');
+      // const datas = this.planeDots;
+      // console.log('Render!');
+      // console.log(this.planeDots);
       const zoom = this.map.getZoom();
       // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
       const scale = (512) * 0.5 / Math.PI * Math.pow(2, zoom);
@@ -207,7 +208,7 @@ export class D3Map01 {
 
       const dots = this.svg
         .selectAll('circle')
-        .data(datas);
+        .data(this.planeDots);
 
       dots
         .enter()
@@ -215,11 +216,13 @@ export class D3Map01 {
 
       dots
         .attr('cx', (d) => {
-          return d3projection([d.lat, d.lon])[0];
+          return d3projection([d.lon, d.lat])[0];
+          // return d3projection([d.lat, d.lon])[0];
           // return scaleX(d.x);
         })
         .attr('cy', (d) => {
-          return d3projection([d.lat, d.lon])[1];
+          return d3projection([d.lon, d.lat])[1];
+          // return d3projection([d.lat, d.lon])[1];
           // return scaleY(d.y);
           // return scaleY(d.y);
         })
