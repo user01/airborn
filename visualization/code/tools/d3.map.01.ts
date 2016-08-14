@@ -26,14 +26,30 @@ export class D3Map01 {
   private controls;
   private width: number;
   private height: number;
+  private svg: d3.Selection<any>;
 
   private planeDots: Array<{ lon: number, lat: number }> = [];
 
-  constructor(private map: any, private rootElement: HTMLElement) {
+  constructor(private map: mapboxgl.Map, private rootElement: HTMLElement) {
+    this.resize();
+
+    this.svg = d3.select(this.rootElement).append("svg")
+      .attr("width", this.width)
+      .attr("height", this.height)
+      .append("g")
+      // .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      .attr("transform", "translate(0,0)");
+
+
     this.loadData();
     this.renderChart();
   }
 
+  private resize = () => {
+    const mapContainer = this.map.getContainer();
+    this.width = mapContainer.clientWidth - 5;
+    this.height = mapContainer.clientHeight - 5;
+  }
 
   private init = () => {
     require('../../styles/d3.map.01.less');
@@ -128,7 +144,7 @@ export class D3Map01 {
   }
 
   private loadData = () => {
-    const url = 'https://alpha.codex10.com/airborn/planes/40/184a711d-2a72-4160-afa1-b46c26277184';
+    const url = 'https://alpha.codex10.com/airborn/planes/200/184a711d-2a72-4160-afa1-b46c26277184';
     d3.json(url, (err, data: any) => {
 
       const localData = R.map((datum: any) => R.merge(datum, { date: moment(datum.date) }), data);
@@ -165,20 +181,30 @@ export class D3Map01 {
         R.flatten
       )(localData);
 
-      this.init();
+      // this.init();
     });
   }
 
   private renderChart = () => {
-    const width = 450;
-    const height = 450;
+    console.log('Rendering chart');
+    // const width = this.map.getBounds()
 
-    var svg = d3.select(this.rootElement).append("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .append("g")
-      // .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-      .attr("transform", "translate(0,0)");
+
+    const zoom = this.map.getZoom();
+    // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
+    const scale = (512) * 0.5 / Math.PI * Math.pow(2, zoom);
+    const center = this.map.getCenter();
+
+    const d3projection = d3.geo.mercator()
+      .center([center.lng, center.lat])
+      .translate([this.width / 2, this.height / 2])
+      .scale(scale);
+    // const d3projection = d3.geo.mercator()
+    //   .center([center.lng, center.lat])
+    //   .translate([width / 2, height / 2])
+    //   .scale(scale);
+
+
 
     //   svg.selectAll(".dot")
     //   .data(data)
@@ -189,29 +215,51 @@ export class D3Map01 {
     //   .attr("y", function(d) { return y(d.frequency); })
     //   .attr("height", function(d) { return height - y(d.frequency); });
 
+    // const datas = [
+    //   { x: 1, y: 7 },
+    //   { x: 2, y: 17 },
+    //   { x: 3, y: 27 },
+    //   { x: 4, y: 47 },
+    //   { x: 5, y: 67 },
+    //   { x: 6, y: 87 },
+    // ];
+    // const datas = this.planeDots;
+    // Quakertown, PA 18951
+    // 40.524153, -75.285368
+
+
     const datas = [
-      { x: 1 },
-      { x: 2 },
-      { x: 3 },
-      { x: 4 },
-      { x: 5 },
-      { x: 6 },
+      { lon: 40.524153, lat: -75.285368 }
     ];
 
+    console.log(`Position: ${d3projection([datas[0].lon, datas[0].lat])}`);
+    console.log(`Position: ${d3projection([datas[0].lat, datas[0].lon])}`);
 
-    svg
+    // const scaleX = d3.scale.linear()
+    //   .domain([0, d3.max(datas, R.prop('x'))])
+    //   .range([0, this.width]);
+
+    // const scaleY = d3.scale.linear()
+    //   .domain([0, d3.max(datas, R.prop('y'))])
+    //   .range([0, this.height]);
+
+    this.svg
       .selectAll('circle')
       .data(datas)
       .enter()
       .append('circle')
       .attr('cx', (d) => {
-        return d.x * 10;
+        return d3projection([d.lat, d.lon])[0];
+        // return scaleX(d.x);
       })
       .attr('cy', (d) => {
-        return d.x * 8;
+        return d3projection([d.lat, d.lon])[1];
+        // return scaleY(d.y);
+        // return scaleY(d.y);
       })
       .attr('r', (d) => {
-        return d.x;
+        return 7;
+        // return d.x;
       })
       .attr('fill', function (d, i) { return '#de9ed6'; })
       .style('cursor', 'pointer')
@@ -227,6 +275,10 @@ export class D3Map01 {
         //   .duration(1500)
         //   .style('opacity', 0);
       });
+
+
+
+
   }
 
 }
