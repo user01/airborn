@@ -1,7 +1,7 @@
 // tool to collect the dump1090 results every n seconds
 // and post the results to a web service
 
-// Note this script will operate for the day where it started 
+// Note this script will operate for the day where it started
 
 const fetch = require('fetch');
 const moment = require('moment');
@@ -19,7 +19,7 @@ const pullPlaneDataAndPost = () => {
     return;
   }
   // don't wait for posts to complete before scheduling
-  setTimeout(pullPlaneDataAndPost, 30 * 1000);
+  setTimeout(pullPlaneDataAndPost, 10 * 1000);
   const currentTimeStr = currentTime.format('dddd, MMMM Do YYYY, h:mm:ss a');
   console.log(`Running plane pull for ${currentTimeStr}`);
 
