@@ -106,14 +106,14 @@ export class D3Map01 {
 
       this.planeLines = <any>R.pipe(
         R.groupBy(R.prop('hex')),
-        R.mapObjIndexed((values, hex, obj) => {
+        R.mapObjIndexed((values: Array<any>, hex, obj) => {
           return {
             hex,
-            values
+            values: R.sortBy(R.prop('fraction'), values)
           };
         }),
-        R.values,
-        R.take(1)
+        R.values
+        // R.take(1)
       )(this.planeDots);
 
       console.log(this.planeDots);
@@ -164,7 +164,7 @@ export class D3Map01 {
 
 
     const line = d3.svg.line()
-      .interpolate("linear")
+      .interpolate("cardinal")
       .x((d: any) => d3projection([d.lon, d.lat])[0])
       .y((d: any) => d3projection([d.lon, d.lat])[1]);
 
@@ -175,21 +175,14 @@ export class D3Map01 {
     lines
       .enter()
       .append('path')
-      .attr("class", `lineset line`)
-      // .attr("class", d => `line-${d.hex}`);
-      // .attr("d", d => line(d.values));
+      .attr('stroke', d => <string>colorScale(d.hex))
+      .attr("class", `lineset line`);
 
     lines
       .attr("d", d => line(d.values));
 
-
-    console.log(this.planeLines);
-    console.log(line(<any>this.planeLines[0].values));
-
-    // lines
-    //   .attr("d", d => line(d.values));
-
-    lines.exit()
+    lines
+      .exit()
       .remove();
   }
 
