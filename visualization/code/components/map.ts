@@ -26,7 +26,7 @@ export class Map {
       container: this.rootElement,
       style: 'mapbox://styles/root77/cirmswz9m0000g5nl6lbfih36',
       attributionControl: false,
-      center: [-75.284247, 40.528183],
+      center: [-78.496234, 38.033056],
       // center: [-0.1, 51.5119112],
       zoom: 13
       // zoom: 10.5,
@@ -42,7 +42,7 @@ export class Map {
       this.map.flyTo({
         // These options control the ending camera position: centered at
         // the target, at zoom level 9, and north up.
-        center: [-75.224247, 40.578183],
+        center: [-78.496034, 38.033096],
         zoom: 8,
         bearing: 0,
 
