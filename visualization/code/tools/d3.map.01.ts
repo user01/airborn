@@ -69,7 +69,7 @@ export class D3Map01 {
       this.planeDots = R.pipe(
         R.groupBy(R.prop('hex')),
         R.values,
-        R.map((entrySet) => {
+        R.map((entrySet: Array<any>) => {
 
           const minDate =
             (<any>R.pipe)(
@@ -89,7 +89,7 @@ export class D3Map01 {
               lon: datum.lon,
               lat: datum.lat,
               hex: datum.hex,
-              fraction: moment(datum.date).diff(minDate) / millisecondsRange,
+              fraction: entrySet.length < 2 ? 0 : moment(datum.date).diff(minDate) / millisecondsRange,
               date: datum.date.valueOf()
             };
           }, entrySet);
