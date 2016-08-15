@@ -29,8 +29,13 @@ export class D3Map01 {
   private svg: d3.Selection<any>;
 
   private planeDots: Array<{ lon: number, lat: number, hex: string, fraction: number }> = [];
+  private planeLines: Array<{
+    hex: string,
+    planePositions: Array<{ lon: number, lat: number, fraction: number }>
+  }> = [];
 
   constructor(private map: mapboxgl.Map, private rootElement: HTMLElement) {
+    require('../../styles/d3.map.01.less');
     this.resize();
 
     this.svg = d3.select(this.rootElement).append("svg")
@@ -42,105 +47,16 @@ export class D3Map01 {
 
 
     this.loadData();
-    this.renderChart();
+    // this.renderChart();
+
+    this.map.on("viewreset", this.renderPosition);
+    this.map.on("move", this.renderPosition);
   }
 
   private resize = () => {
     const mapContainer = this.map.getContainer();
     this.width = mapContainer.clientWidth - 5;
     this.height = mapContainer.clientHeight - 5;
-  }
-
-  private init = () => {
-    require('../../styles/d3.map.01.less');
-
-
-
-    const bbox = document.body.getBoundingClientRect();
-    const width = bbox.width;
-    const height = bbox.height
-    // Setup our svg layer that we can manipulate with d3
-    const container = this.map.getCanvasContainer()
-
-    const canvas: any = d3.select(container).append("canvas").node();
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    // we calculate the scale given mapbox state (derived from viewport-mercator-project's code)
-    // to define a d3 projection
-    const getD3 = () => {
-      const bbox = document.body.getBoundingClientRect();
-      const center = this.map.getCenter();
-      const zoom = this.map.getZoom();
-      // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
-      const scale = (512) * 0.5 / Math.PI * Math.pow(2, zoom);
-
-      const d3projection = d3.geo.mercator()
-        .center([center.lng, center.lat])
-        .translate([bbox.width / 2, bbox.height / 2])
-        .scale(scale);
-
-      return d3projection;
-    }
-    // calculate the original d3 projection
-    var d3Projection = getD3();
-
-    const render = () => {
-      d3Projection = getD3();
-      ctx.clearRect(0, 0, width, height);
-
-      ctx.fillStyle = "#0082a3";
-      ctx.strokeStyle = "#004d60";
-
-      const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
-      const colorScale = d3.scale.ordinal()
-        .domain(planeHexes)
-        .range(R.take(planeHexes.length, colorlist));
-
-
-      const groupedPlanes = R.pipe(
-        R.groupBy(R.prop('hex')),
-        R.values,
-        R.map((planeSet: Array<{ lon: number, lat: number, hex: string, fraction: number, date: number }>) => {
-          const hex = R.pipe(R.head, R.prop('hex'))(planeSet);
-          planeSet = R.sortBy(
-            R.prop('fraction'),
-            planeSet
-          );
-          ctx.fillStyle = colorScale(hex);
-          ctx.strokeStyle = "#004d60";
-          ctx.strokeStyle = ctx.fillStyle;
-          planeSet.forEach((d) => {
-            const p = d3Projection([d.lon, d.lat]);
-            ctx.beginPath();
-            ctx.arc(p[0], p[1], 1 + this.map.getZoom() * 0.5 * d.fraction, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-          });
-
-          // Draw the path
-          ctx.beginPath();
-          planeSet.forEach((d) => {
-            const p = d3Projection([d.lon, d.lat]);
-            ctx.lineTo(p[0], p[1]);
-          });
-          ctx.stroke();
-
-        })
-      )(this.planeDots);
-
-    };
-
-    // re-render our visualization whenever the view changes
-    this.map.on("viewreset", () => {
-      render();
-    })
-    this.map.on("move", () => {
-      render();
-    })
-
-    // render our initial visualization
-    render();
   }
 
   private loadData = () => {
@@ -185,82 +101,75 @@ export class D3Map01 {
 
       console.log(this.planeDots);
       // this.init();
+      this.renderPosition();
+      this.renderStyle();
     });
   }
 
-  private renderChart = () => {
-    console.log('Rendering chart');
-    const datas = [
-      { lon: 40.524153, lat: -75.285368 }
-    ];
+  private renderPosition = () => {
+    console.log('Rendering positions');
 
+    const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
+    const colorScale = d3.scale.ordinal()
+      .domain(planeHexes)
+      .range(R.take(planeHexes.length, colorlist));
 
-    const render = () => {
-      // const datas = this.planeDots;
-      // console.log('Render!');
-      // console.log(this.planeDots);
-      const zoom = this.map.getZoom();
-      // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
-      const scale = (512) * 0.5 / Math.PI * Math.pow(2, zoom);
-      const center = this.map.getCenter();
+    const zoom = this.map.getZoom();
+    // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
+    const scale = (512) * 0.5 / Math.PI * Math.pow(2, zoom);
+    const center = this.map.getCenter();
 
-      const d3projection = d3.geo.mercator()
-        .center([center.lng, center.lat])
-        .translate([this.width / 2, this.height / 2])
-        .scale(scale);
-      const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
-      const colorScale = d3.scale.ordinal()
-        .domain(planeHexes)
-        .range(R.take(planeHexes.length, colorlist));
+    const d3projection = d3.geo.mercator()
+      .center([center.lng, center.lat])
+      .translate([this.width / 2, this.height / 2])
+      .scale(scale);
 
+    const dots = this.svg
+      .selectAll('circle')
+      .data(this.planeDots, R.prop('id'));
 
-      const dots = this.svg
-        .selectAll('circle')
-        // .data(this.planeDots);
-        .data(this.planeDots, R.prop('id'));
+    dots
+      .enter()
+      .append('circle')
+      .attr('r', 0);
 
-      dots
-        .enter()
-        .append('circle')
-        // .attr('r', (d) => `0.1em`)
+    dots
+      .attr('fill', (d) => { return <string>colorScale(d.hex); })
+      .attr('cx', (d) => d3projection([d.lon, d.lat])[0])
+      .attr('cy', (d) => d3projection([d.lon, d.lat])[1])
+      .style('cursor', 'pointer');
 
-      dots
-        .attr('cx', (d) => d3projection([d.lon, d.lat])[0])
-        .attr('cy', (d) => d3projection([d.lon, d.lat])[1])
-        .attr('fill', (d) => { return <string>colorScale(d.hex); })
-        .style('cursor', 'pointer')
-        .attr('r', (d) => {
-          const size = zoom * 0.05 * d.fraction;
-          if (isNaN(size)) {
-            console.log(d, zoom);
-          }
-          return `${size}em`;
-        }
-        )
-      // .attr('r', (d) => `${zoom * 0.1 * d.fraction}em`)
-
-      dots.exit()
-        .attr('class', 'exit')
-        .remove();
-      //   .transition(<any>D3Map01.transition)
-
-    };
-
-
-    // re-render our visualization whenever the view changes
-    this.map.on("viewreset", () => {
-      render();
-    })
-    this.map.on("move", () => {
-      render();
-    })
-    render();
-
+    dots.exit()
+      .attr('class', 'exit')
+      .remove();
 
   }
 
-  private static transition = d3.transition()
-    .duration(750);
+
+  private renderStyle = () => {
+    console.log('Rendering styles');
+
+
+    const dots = this.svg
+      .selectAll('circle')
+      .data(this.planeDots, R.prop('id'));
+
+
+    dots
+      .transition()
+      .duration(2500)
+      .attr('r', (d) => {
+        // const size = 0.05 * d.fraction;
+        // return `${size}em`;
+        return `${d.fraction * 0.2}em`;
+      })
+
+    dots.exit()
+      .transition()
+      .duration(2500)
+      .attr("r", 0)
+      .remove();
+  }
 
 }
 
