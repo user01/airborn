@@ -27,11 +27,13 @@ export class D3Map01 {
   private width: number;
   private height: number;
   private svg: d3.Selection<any>;
+  private svgCircles: d3.Selection<any>;
+  private svgLines: d3.Selection<any>;
 
   private planeDots: Array<{ lon: number, lat: number, hex: string, fraction: number }> = [];
   private planeLines: Array<{
     hex: string,
-    planePositions: Array<{ lon: number, lat: number, fraction: number }>
+    values: Array<{ lon: number, lat: number, fraction: number }>
   }> = [];
 
   constructor(private map: mapboxgl.Map, private rootElement: HTMLElement) {
@@ -45,6 +47,8 @@ export class D3Map01 {
       // .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
       .attr("transform", "translate(0,0)");
 
+    this.svgCircles = this.svg.append('g').attr('class', 'circles');
+    this.svgLines = this.svg.append('g').attr('class', 'lines');
 
     this.loadData();
     // this.renderChart();
@@ -62,6 +66,8 @@ export class D3Map01 {
   private loadData = () => {
     const url = 'https://alpha.codex10.com/airborn/planes/200/184a711d-2a72-4160-afa1-b46c26277184';
     d3.json(url, (err, data: any) => {
+
+      console.log('  ------------- New JSON');
 
       const localData = R.map((datum: any) => R.merge(datum, { date: moment(datum.date) }), data);
 
@@ -98,12 +104,24 @@ export class D3Map01 {
         R.flatten
       )(localData);
 
+      this.planeLines = <any>R.pipe(
+        R.groupBy(R.prop('hex')),
+        R.mapObjIndexed((values, hex, obj) => {
+          return {
+            hex,
+            values
+          };
+        }),
+        R.values,
+        R.take(1)
+      )(this.planeDots);
 
       console.log(this.planeDots);
+      console.log(this.planeLines);
       // this.init();
       this.renderPosition();
       this.renderStyle();
-      setTimeout(this.loadData, 10000);
+      // setTimeout(this.loadData, 10000);
     });
   }
 
@@ -125,7 +143,7 @@ export class D3Map01 {
       .translate([this.width / 2, this.height / 2])
       .scale(scale);
 
-    const dots = this.svg
+    const dots = this.svgCircles
       .selectAll('circle')
       .data(this.planeDots, R.prop('id'));
 
@@ -144,6 +162,35 @@ export class D3Map01 {
       .attr('class', 'exit')
       .remove();
 
+
+    const line = d3.svg.line()
+      .interpolate("linear")
+      .x((d: any) => d3projection([d.lon, d.lat])[0])
+      .y((d: any) => d3projection([d.lon, d.lat])[1]);
+
+    const lines = this.svgLines
+      .selectAll('.lineset')
+      .data(this.planeLines, R.prop('hex'));
+
+    lines
+      .enter()
+      .append('path')
+      .attr("class", `lineset line`)
+      // .attr("class", d => `line-${d.hex}`);
+      // .attr("d", d => line(d.values));
+
+    lines
+      .attr("d", d => line(d.values));
+
+
+    console.log(this.planeLines);
+    console.log(line(<any>this.planeLines[0].values));
+
+    // lines
+    //   .attr("d", d => line(d.values));
+
+    lines.exit()
+      .remove();
   }
 
 
@@ -151,7 +198,7 @@ export class D3Map01 {
     console.log('Rendering styles');
 
 
-    const dots = this.svg
+    const dots = this.svgCircles
       .selectAll('circle')
       .data(this.planeDots, R.prop('id'));
 
