@@ -169,6 +169,7 @@ export class D3Map01 {
 
           return R.map((datum: any) => {
             return {
+              id: datum._id,
               lon: datum.lon,
               lat: datum.lat,
               hex: datum.hex,
@@ -181,6 +182,8 @@ export class D3Map01 {
         R.flatten
       )(localData);
 
+
+      console.log(this.planeDots);
       // this.init();
     });
   }
@@ -213,39 +216,33 @@ export class D3Map01 {
 
       const dots = this.svg
         .selectAll('circle')
-        .data(this.planeDots);
+        // .data(this.planeDots);
+        .data(this.planeDots, R.prop('id'));
 
       dots
         .enter()
-        .append('circle');
+        .append('circle')
+        // .attr('r', (d) => `0.1em`)
 
       dots
-        .attr('cx', (d) => {
-          return d3projection([d.lon, d.lat])[0];
-          // return d3projection([d.lat, d.lon])[0];
-          // return scaleX(d.x);
-        })
-        .attr('cy', (d) => {
-          return d3projection([d.lon, d.lat])[1];
-          // return d3projection([d.lat, d.lon])[1];
-          // return scaleY(d.y);
-          // return scaleY(d.y);
-        })
-        .attr('r', (d) => `${zoom * 0.1 * d.fraction}em`)
+        .attr('cx', (d) => d3projection([d.lon, d.lat])[0])
+        .attr('cy', (d) => d3projection([d.lon, d.lat])[1])
         .attr('fill', (d) => { return <string>colorScale(d.hex); })
         .style('cursor', 'pointer')
-        .on('mouseover', function (d) {
-          // d3.select('svg g.chart #countryLabel')
-          //   .text(d.Country)
-          //   .transition()
-          //   .style('opacity', 1);
-        })
-        .on('mouseout', function (d) {
-          // d3.select('svg g.chart #countryLabel')
-          //   .transition()
-          //   .duration(1500)
-          //   .style('opacity', 0);
-        });
+        .attr('r', (d) => {
+          const size = zoom * 0.05 * d.fraction;
+          if (isNaN(size)) {
+            console.log(d, zoom);
+          }
+          return `${size}em`;
+        }
+        )
+      // .attr('r', (d) => `${zoom * 0.1 * d.fraction}em`)
+
+      dots.exit()
+        .attr('class', 'exit')
+        .remove();
+      //   .transition(<any>D3Map01.transition)
 
     };
 
@@ -261,6 +258,9 @@ export class D3Map01 {
 
 
   }
+
+  private static transition = d3.transition()
+    .duration(750);
 
 }
 
