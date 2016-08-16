@@ -19,6 +19,8 @@ export class D3Map01 {
   private timeFactor: number = 1;
   private windowInMinutes: number = 120;
 
+  private static transitionTime = 8500;
+
   private width: number;
   private height: number;
   private svg: d3.Selection<any>;
@@ -216,6 +218,7 @@ export class D3Map01 {
       .enter()
       .append('path')
       .attr('stroke', d => <string>colorScale(d.hex))
+      .attr("stroke-opacity", 0.05)
       .attr("class", `lineset line`);
 
     lines
@@ -241,7 +244,7 @@ export class D3Map01 {
 
     dots
       .transition()
-      .duration(8500)
+      .duration(D3Map01.transitionTime)
       .attr('r', (d) => {
         // const size = 0.05 * d.fraction;
         // return `${size}em`;
@@ -250,9 +253,20 @@ export class D3Map01 {
 
     dots.exit()
       .transition()
-      .duration(2500)
+      .duration(D3Map01.transitionTime)
       .attr("r", 0)
       .remove();
+
+
+    const lines = this.svgLines
+      .selectAll('.lineset')
+      .data(this.planeLines, R.prop('hex'));
+
+    lines
+      .transition()
+      .duration(D3Map01.transitionTime)
+      .attr("stroke-opacity", 1);
+
   }
 
 }
