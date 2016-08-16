@@ -3,11 +3,6 @@
 
 
 import * as R from 'ramda';
-// import * as React from 'react';
-// import * as ReactDOM from 'react-dom';
-// import * as mapboxgl from 'mapbox-gl';
-// import * as d3 from 'd3';
-// import * as topojson from 'topojson';
 import * as moment from 'moment';
 
 import data from './local.data.tmp';
@@ -19,6 +14,7 @@ declare var topojson: any;
 */
 export class D3Map01 {
 
+  private get CurrentTime() { return this.currentTime.clone(); }
   private currentTime: moment.Moment = moment();
   private timeFactor: number = 1;
   private windowInMinutes: number = 120;
@@ -29,15 +25,19 @@ export class D3Map01 {
   private svgCircles: d3.Selection<any>;
   private svgLines: d3.Selection<any>;
 
+  private currentRawPlaneData: Array<any> = [];
   private planeDots: Array<{ lon: number, lat: number, hex: string, fraction: number }> = [];
   private planeLines: Array<{
     hex: string,
     values: Array<{ lon: number, lat: number, fraction: number }>
   }> = [];
+  private rawPlaneEndDate: moment.Moment;
+  private rawPlaneStartDate: moment.Moment;
 
   constructor(private map: mapboxgl.Map, private rootElement: HTMLElement) {
     require('../../styles/d3.map.01.less');
     this.resize();
+    this.computeDateRanges();
 
     this.svg = d3.select(this.rootElement).append("svg")
       .attr("width", this.width)
@@ -49,7 +49,7 @@ export class D3Map01 {
     this.svgCircles = this.svg.append('g').attr('class', 'circles');
     this.svgLines = this.svg.append('g').attr('class', 'lines');
 
-    this.loadData();
+    this.loadDataIfRequired();
     // this.renderChart();
 
     this.map.on("viewreset", this.renderPosition);
@@ -66,66 +66,103 @@ export class D3Map01 {
     this.height = mapContainer.clientHeight - 5;
   }
 
-  private loadData = () => {
-    const url = 'https://alpha.codex10.com/airborn/planes/2016-08-15T14:05:33.774-5:00/2016-08-15T15:05:33.774-5:00/184a711d-2a72-4160-afa1-b46c26277184';
+  private computeDateRanges = () => {
+
+    const dates = R.map(R.prop('date'), this.currentRawPlaneData);
+    this.rawPlaneStartDate = moment.min(dates);
+    this.rawPlaneEndDate = moment.max(dates);
+  }
+
+  private loadDataIfRequired = () => {
+    const startDesiredTime = this.CurrentTime.add(-this.windowInMinutes, 'minutes');
+    const endDesiredTime = this.CurrentTime.add(this.windowInMinutes, 'minutes');
+
+    if (startDesiredTime.isBefore(this.rawPlaneStartDate)) {
+      this.loadData(startDesiredTime, this.rawPlaneStartDate);
+    }
+    if (endDesiredTime.isAfter(this.rawPlaneEndDate)) {
+      this.loadData(this.rawPlaneEndDate, endDesiredTime);
+    }
+  }
+
+  private loadData = (start: moment.Moment, end: moment.Moment) => {
+    console.log(`Loading data for ${start.format('h:mm:ss a')} ${end.format('h:mm:ss a')}`);
+    const url = `https://alpha.codex10.com/airborn/planes/${start.toISOString()}/${end.toISOString()}/184a711d-2a72-4160-afa1-b46c26277184`;
     d3.json(url, (err, data: any) => {
 
       console.log('  ------------- New JSON');
+      this.currentRawPlaneData = R.pipe(
+        R.map((datum: any) => R.merge(datum, { date: moment(datum.date) })),
+        R.concat(this.currentRawPlaneData),
+        R.uniq
+      )(data);
 
-      const localData = R.map((datum: any) => R.merge(datum, { date: moment(datum.date) }), data);
+      this.computeDateRanges();
 
-
-      this.planeDots = R.pipe(
-        R.groupBy(R.prop('hex')),
-        R.values,
-        R.map((entrySet: Array<any>) => {
-
-          const minDate =
-            (<any>R.pipe)(
-              R.map(R.prop('date')),
-              moment.min
-            )(entrySet);
-          const maxDate =
-            (<any>R.pipe)(
-              R.map(R.prop('date')),
-              moment.max
-            )(entrySet);
-          const millisecondsRange = maxDate.diff(minDate);
-
-          return R.map((datum: any) => {
-            return {
-              id: datum._id,
-              lon: datum.lon,
-              lat: datum.lat,
-              hex: datum.hex,
-              fraction: entrySet.length < 2 ? 0 : moment(datum.date).diff(minDate) / millisecondsRange,
-              date: datum.date.valueOf()
-            };
-          }, entrySet);
-
-        }),
-        R.flatten
-      )(localData);
-
-      this.planeLines = <any>R.pipe(
-        R.groupBy(R.prop('hex')),
-        R.mapObjIndexed((values: Array<any>, hex, obj) => {
-          return {
-            hex,
-            values: R.sortBy(R.prop('fraction'), values)
-          };
-        }),
-        R.values
-        // R.take(1)
-      )(this.planeDots);
-
-      console.log(this.planeDots);
-      console.log(this.planeLines);
-      // this.init();
-      this.renderPosition();
-      this.renderStyle();
-      setTimeout(this.loadData, 10000);
+      // now that data is up to date, call for a fresh draw
+      this.resetData();
     });
+  }
+
+  private resetData = () => {
+
+    const startTime = this.CurrentTime.add(-this.windowInMinutes, 'minutes');
+    const endTime = this.CurrentTime;
+
+    this.planeDots = R.pipe(
+      R.filter((d: any) => {
+        return d.date.isSameOrAfter(startTime) && d.date.isSameOrBefore(endTime);
+      }),
+      R.groupBy(R.prop('hex')),
+      R.values,
+      R.map((entrySet: Array<any>) => {
+
+        const minDate =
+          (<any>R.pipe)(
+            R.map(R.prop('date')),
+            moment.min
+          )(entrySet);
+        const maxDate =
+          (<any>R.pipe)(
+            R.map(R.prop('date')),
+            moment.max
+          )(entrySet);
+        const millisecondsRange = maxDate.diff(minDate);
+
+        return R.map((datum: any) => {
+          return {
+            id: datum._id,
+            lon: datum.lon,
+            lat: datum.lat,
+            hex: datum.hex,
+            fraction: entrySet.length < 2 ? 0 : moment(datum.date).diff(minDate) / millisecondsRange,
+            date: datum.date.valueOf()
+          };
+        }, entrySet);
+
+      }),
+      R.flatten
+    )(this.currentRawPlaneData);
+
+    this.planeLines = <any>R.pipe(
+      R.groupBy(R.prop('hex')),
+      R.mapObjIndexed((values: Array<any>, hex, obj) => {
+        return {
+          hex,
+          values: R.sortBy(R.prop('fraction'), values)
+        };
+      }),
+      R.values
+      // R.take(1)
+    )(this.planeDots);
+
+    // console.log(this.planeDots);
+    // console.log(this.planeLines);
+    this.renderPosition();
+    this.renderStyle();
+    // setTimeout(this.loadData, 10000);
+
+
   }
 
   private renderPosition = () => {
