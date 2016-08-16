@@ -15,8 +15,9 @@ declare var topojson: any;
 export class D3Map01 {
 
   private get CurrentTime() { return this.currentTime.clone(); }
-  private currentTime: moment.Moment = moment();
-  private timeFactor: number = 1;
+  private currentTime: moment.Moment = moment().add(-4, 'hours');
+  private timeFactor: number = 12;
+  private tickLengthMs = 10000;
   private windowInMinutes: number = 120;
 
   private static transitionTime = 8500;
@@ -51,8 +52,7 @@ export class D3Map01 {
     this.svgCircles = this.svg.append('g').attr('class', 'circles');
     this.svgLines = this.svg.append('g').attr('class', 'lines');
 
-    this.loadDataIfRequired();
-    // this.renderChart();
+    this.tick();
 
     this.map.on("viewreset", this.renderPosition);
     this.map.on("move", this.renderPosition);
@@ -69,10 +69,23 @@ export class D3Map01 {
   }
 
   private computeDateRanges = () => {
-
     const dates = R.map(R.prop('date'), this.currentRawPlaneData);
     this.rawPlaneStartDate = moment.min(dates);
     this.rawPlaneEndDate = moment.max(dates);
+  }
+
+  private tick = () => {
+    // on every tick
+    console.log('  -- Tick --');
+    this.loadDataIfRequired();
+
+    this.currentTime.add(this.tickLengthMs * this.timeFactor, 'milliseconds');
+    if (this.currentTime.isAfter(moment())) {
+      this.currentTime = moment();
+      this.timeFactor = 1;
+    }
+    this.resetData();
+    setTimeout(this.tick, this.tickLengthMs);
   }
 
   private loadDataIfRequired = () => {
@@ -85,7 +98,6 @@ export class D3Map01 {
     if (endDesiredTime.isAfter(this.rawPlaneEndDate)) {
       this.loadData(this.rawPlaneEndDate, endDesiredTime);
     }
-    setTimeout(this.loadDataIfRequired, 10000);
   }
 
   private loadData = (start: moment.Moment, end: moment.Moment) => {
@@ -96,8 +108,8 @@ export class D3Map01 {
       console.log('  ------------- New JSON');
       this.currentRawPlaneData = R.pipe(
         R.map((datum: any) => R.merge(datum, { date: moment(datum.date) })),
-        R.concat(this.currentRawPlaneData),
-        R.uniq
+        R.concat(this.currentRawPlaneData)
+        // R.uniq
       )(data);
 
       this.computeDateRanges();
@@ -109,12 +121,21 @@ export class D3Map01 {
 
   private resetData = () => {
 
+    console.log(`Entry count: ${this.currentRawPlaneData.length}`);
+
     const startTime = this.CurrentTime.add(-this.windowInMinutes, 'minutes');
+    const activeTime = this.CurrentTime.add(-this.windowInMinutes * 0.2, 'minutes');
     const endTime = this.CurrentTime;
+
+    const upToDateHexes = R.pipe(
+      R.filter((d: any) => d.date.isAfter(activeTime)),
+      R.map(R.prop('hex')),
+      R.uniq
+    )(this.currentRawPlaneData);
 
     this.planeDots = R.pipe(
       R.filter((d: any) => {
-        return d.date.isSameOrAfter(startTime) && d.date.isSameOrBefore(endTime);
+        return d.date.isSameOrAfter(startTime) && d.date.isSameOrBefore(endTime) && R.contains(d.hex, upToDateHexes);
       }),
       R.groupBy(R.prop('hex')),
       R.values,
