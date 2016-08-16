@@ -117,17 +117,10 @@ const handlePlanes = (req, res, next) => {
     return next();
   }
 
-  let minutes = 60;
-  try {
-    minutes = parseInt(req.params.minutes);
-    minutes = Math.max(Math.min(minutes, 200), 5);
-  } catch (e) {
-    minutes = 60;
-  }
-
   db.findAsync({
     date: {
-      $gt: moment().add(-minutes, 'minutes').toDate()
+      $lt: moment(req.params.endDate).toDate(),
+      $gt: moment(req.params.startDate).toDate()
     }
   }).then((results) => {
     // these results are an array of form:
@@ -145,7 +138,7 @@ const handlePlanes = (req, res, next) => {
 
 
 server.post(rootUrl + '/planeupdate', handlePlaneUpdate);
-server.get(rootUrl + '/planes/:minutes/:token', handlePlanes);
+server.get(rootUrl + '/planes/:startDate/:endDate/:token', handlePlanes);
 
 
 //prevent keep alive
