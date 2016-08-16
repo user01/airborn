@@ -41,6 +41,7 @@ export class D3Map01 {
     require('../../styles/d3.map.01.less');
     this.resize();
     this.computeDateRanges();
+    this.fitMapToPoints();
 
     this.svg = d3.select(this.rootElement).append("svg")
       .attr("width", this.width)
@@ -289,6 +290,26 @@ export class D3Map01 {
       .duration(D3Map01.transitionTime)
       .attr("stroke-opacity", 1);
 
+  }
+
+  private fitMapToPoints = () => {
+    this.map.fitBounds([[
+      -78.872109,
+      38.479597
+    ], [
+        -77.679644,
+        37.888823
+      ]],
+      {
+        linear: false,
+        // This can be any easing function: it takes a number between
+        // 0 and 1 and returns another number between 0 and 1.
+        easing: (t) => {
+          return t;
+        }
+      }
+
+    );
   }
 
 }
