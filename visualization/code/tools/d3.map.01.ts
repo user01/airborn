@@ -7,6 +7,7 @@ import * as moment from 'moment';
 
 import data from './local.data.tmp';
 import colorlist from './color.list';
+import Utility from './utility';
 
 declare var topojson: any;
 
@@ -193,10 +194,10 @@ export class D3Map01 {
   private renderPosition = () => {
     console.log('Rendering positions');
 
-    const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
-    const colorScale = d3.scale.ordinal()
-      .domain(planeHexes)
-      .range(R.take(planeHexes.length, colorlist));
+    // const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
+    // const colorScale = d3.scale.ordinal()
+    //   .domain(planeHexes)
+    //   .range(R.take(planeHexes.length, colorlist));
 
     const zoom = this.map.getZoom();
     // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
@@ -218,7 +219,7 @@ export class D3Map01 {
       .attr('r', 0);
 
     dots
-      .attr('fill', (d) => { return <string>colorScale(d.hex); })
+      .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
       .attr('cx', (d) => d3projection([d.lon, d.lat])[0])
       .attr('cy', (d) => d3projection([d.lon, d.lat])[1])
       .style('cursor', 'pointer');
@@ -240,7 +241,7 @@ export class D3Map01 {
     lines
       .enter()
       .append('path')
-      .attr('stroke', d => <string>colorScale(d.hex))
+      .attr('stroke', d => Utility.ColorFromStr(d.hex))
       .attr("stroke-opacity", 0.05)
       .attr("class", `lineset line`);
 
