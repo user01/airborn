@@ -64,7 +64,7 @@ export class D3Map01 {
   }
 
   private loadData = () => {
-    const url = 'https://alpha.codex10.com/airborn/planes/200/184a711d-2a72-4160-afa1-b46c26277184';
+    const url = 'https://alpha.codex10.com/airborn/planes/2016-08-15T14:05:33.774-5:00/2016-08-15T15:05:33.774-5:00/184a711d-2a72-4160-afa1-b46c26277184';
     d3.json(url, (err, data: any) => {
 
       console.log('  ------------- New JSON');
