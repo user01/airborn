@@ -18,10 +18,10 @@ export class D3Map01 {
   private get CurrentTime() { return this.currentTime.clone(); }
   private currentTime: moment.Moment = moment().add(-4, 'hours');
   private timeFactor: number = 12;
-  private tickLengthMs = 10000;
+  private tickLengthMs = 1000;
   private windowInMinutes: number = 120;
 
-  private static transitionTime = 8500;
+  private static transitionTime = 500;
 
   private width: number;
   private height: number;
@@ -155,13 +155,14 @@ export class D3Map01 {
           )(entrySet);
         const millisecondsRange = maxDate.diff(minDate);
 
+
         return R.map((datum: any) => {
           return {
             id: datum._id,
             lon: datum.lon,
             lat: datum.lat,
             hex: datum.hex,
-            fraction: entrySet.length < 2 ? 0 : moment(datum.date).diff(minDate) / millisecondsRange,
+            fraction: isNaN(moment(datum.date).diff(minDate) / millisecondsRange) ? 0 : moment(datum.date).diff(minDate) / millisecondsRange,
             date: datum.date.valueOf()
           };
         }, entrySet);
@@ -226,6 +227,9 @@ export class D3Map01 {
 
     dots.exit()
       .attr('class', 'exit')
+      .transition()
+      .duration(D3Map01.transitionTime)
+      .attr('r', 0)
       .remove();
 
 
@@ -243,13 +247,18 @@ export class D3Map01 {
       .append('path')
       .attr('stroke', d => Utility.ColorFromStr(d.hex))
       .attr("stroke-opacity", 0.05)
+      .attr("stroke-width", '0.5px')
       .attr("class", `lineset line`);
 
     lines
+      .attr("stroke-width", '0.2em')
       .attr("d", d => line(d.values));
 
     lines
       .exit()
+      .transition()
+      .duration(D3Map01.transitionTime)
+      .attr("stroke-opacity", 0)
       .remove();
 
     d3.select('#clock')
