@@ -85,6 +85,7 @@ export class D3Map01 {
     if (endDesiredTime.isAfter(this.rawPlaneEndDate)) {
       this.loadData(this.rawPlaneEndDate, endDesiredTime);
     }
+    setTimeout(this.loadDataIfRequired, 10000);
   }
 
   private loadData = (start: moment.Moment, end: moment.Moment) => {
