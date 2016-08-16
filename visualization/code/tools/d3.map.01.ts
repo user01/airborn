@@ -19,11 +19,10 @@ declare var topojson: any;
 */
 export class D3Map01 {
 
-  private parent;
-  private renderer;
-  private scene;
-  private camera;
-  private controls;
+  private currentTime: moment.Moment = moment();
+  private timeFactor: number = 1;
+  private windowInMinutes: number = 120;
+
   private width: number;
   private height: number;
   private svg: d3.Selection<any>;
@@ -55,6 +54,10 @@ export class D3Map01 {
 
     this.map.on("viewreset", this.renderPosition);
     this.map.on("move", this.renderPosition);
+    document.addEventListener('DOMContentLoaded', () => {
+      this.resize();
+      this.renderPosition();
+    }, false);
   }
 
   private resize = () => {
@@ -184,6 +187,9 @@ export class D3Map01 {
     lines
       .exit()
       .remove();
+
+    d3.select('#clock')
+      .text(this.currentTime.format('h:mm'));
   }
 
 
