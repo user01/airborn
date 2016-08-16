@@ -121,7 +121,7 @@ export class D3Map01 {
       // this.init();
       this.renderPosition();
       this.renderStyle();
-      // setTimeout(this.loadData, 10000);
+      setTimeout(this.loadData, 10000);
     });
   }
 
@@ -202,7 +202,7 @@ export class D3Map01 {
       .attr('r', (d) => {
         // const size = 0.05 * d.fraction;
         // return `${size}em`;
-        return `${d.fraction * 0.2}em`;
+        return `${d.fraction * 0.4}em`;
       })
 
     dots.exit()
