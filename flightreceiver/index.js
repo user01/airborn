@@ -68,7 +68,7 @@ const handlePlaneUpdate = (req, res, next) => {
     .then((newDocs) => {
       // purge any entries older than 3 days
       return db.removeAsync({
-        date: { $lt: moment().add(-3, 'days').toDate() }
+        date: { $lt: moment().add(-30, 'days').toDate() }
       }, { multi: true });
     }).then(() => {
       res.send(200);
