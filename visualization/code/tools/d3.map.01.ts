@@ -28,9 +28,11 @@ export class D3Map01 {
   private svg: d3.Selection<any>;
   private svgCircles: d3.Selection<any>;
   private svgLines: d3.Selection<any>;
+  private svgPlanes: d3.Selection<any>;
 
   private currentRawPlaneData: Array<any> = [];
   private planeDots: Array<{ lon: number, lat: number, hex: string, fraction: number }> = [];
+  private planePlanes: Array<{ lon: number, lat: number, hex: string }> = [];
   private planeLines: Array<{
     hex: string,
     values: Array<{ lon: number, lat: number, fraction: number }>
@@ -53,6 +55,7 @@ export class D3Map01 {
 
     this.svgCircles = this.svg.append('g').attr('class', 'circles');
     this.svgLines = this.svg.append('g').attr('class', 'lines');
+    this.svgPlanes = this.svg.append('g').attr('class', 'planes');
 
     this.tick();
 
@@ -149,7 +152,7 @@ export class D3Map01 {
       R.uniq
     )(this.currentRawPlaneData);
 
-    this.planeDots = R.pipe(
+    const planeDatas = R.pipe(
       R.filter((d: any) => {
         return d.date.isSameOrAfter(startTime) && d.date.isSameOrBefore(endTime) && R.contains(d.hex, upToDateHexes);
       }),
@@ -157,25 +160,35 @@ export class D3Map01 {
       R.values,
       R.map((entrySet: Array<any>) => {
 
-        return R.map((datum: any) => {
-          const minutes = datum.date.diff(activeTime, 'minutes');
-          const fraction = minutes < 0 ? 0 : minutes / totalMinutes;
-          return {
-            id: datum._id,
-            lon: datum.lon,
-            lat: datum.lat,
-            hex: datum.hex,
-            fraction,
-            // fraction: minutes / totalMinutes,
-            // fraction: moment(datum.date).diff(activeTime,'minutes') / totalMinutes,
-            // fraction2: moment(datum.date).diff(activeTime),
-            date: datum.date.valueOf()
-          };
-        }, entrySet);
-
-      }),
-      R.flatten
+        const dataSet = R.pipe(
+          R.map((datum: any) => {
+            const minutes = datum.date.diff(activeTime, 'minutes');
+            const fraction = minutes < 0 ? 0 : minutes / totalMinutes;
+            return {
+              id: datum._id,
+              lon: datum.lon,
+              lat: datum.lat,
+              hex: datum.hex,
+              fraction,
+              date: datum.date.valueOf()
+            };
+          }),
+          R.sortBy(R.prop('date'))
+        )(entrySet);
+        return {
+          dots: R.tail(dataSet),
+          plane: R.head(dataSet)
+        };
+      })
     )(this.currentRawPlaneData);
+
+    this.planeDots = R.pipe(
+      R.map(R.prop('dots')),
+      R.flatten
+    )(planeDatas);
+    this.planePlanes = R.pipe(
+      R.map(R.prop('plane'))
+    )(planeDatas);
 
     this.planeLines = <any>R.pipe(
       R.groupBy(R.prop('hex')),
@@ -267,6 +280,25 @@ export class D3Map01 {
       .duration(D3Map01.transitionTime)
       .attr("stroke-opacity", 0)
       .remove();
+
+
+    const planes = this.svgPlanes
+      .selectAll('.planeIcons')
+      .data(this.planePlanes, R.prop('hex'))
+
+    planes.enter()
+      .append('text')
+      .text('P')
+      .attr('fill', 'middle')
+      .attr('font-size', '1em')
+      .attr('class', 'aPlane');
+
+    planes
+      .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
+      .attr('x', (d) => d3projection([d.lon, d.lat])[0])
+      .attr('y', (d) => d3projection([d.lon, d.lat])[1])
+
+    planes.exit().remove();
 
     d3.select('#clock')
       .text(this.renderClockText());
