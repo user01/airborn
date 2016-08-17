@@ -87,7 +87,7 @@ export class D3Map01 {
       this.timeFactor = 1;
     }
     this.resetData();
-    // setTimeout(this.tick, this.tickLengthMs);
+    setTimeout(this.tick, this.tickLengthMs);
   }
 
   private loadDataIfRequired = () => {
@@ -106,6 +106,10 @@ export class D3Map01 {
     console.log(`Loading data for ${start.format('h:mm:ss a')} ${end.format('h:mm:ss a')}`);
     const url = `https://alpha.codex10.com/airborn/planes/${start.toISOString()}/${end.toISOString()}/184a711d-2a72-4160-afa1-b46c26277184`;
     d3.json(url, (err, data: any) => {
+      if (err) {
+        console.error('Pull error', err);
+        return;
+      }
 
       console.log('  ------------- New JSON');
       this.currentRawPlaneData = R.pipe(
@@ -133,8 +137,8 @@ export class D3Map01 {
       .domain([0, this.windowInMinutes * 0.5, this.windowInMinutes * 2])
       .range([0, 0.08, 0.8]).clamp(true);
     const totalMinutes = endTime.diff(activeTime, 'minutes');
-    console.log(`Total minutes ${totalMinutes}`);
-    console.log(`0 ${timeScale(0)} / 0.2 ${timeScale(this.windowInMinutes * 0.2)} / 1.2 ${timeScale(this.windowInMinutes * 1.2)} / 2.2 ${timeScale(this.windowInMinutes * 2.2)} `);
+    // console.log(`Total minutes ${totalMinutes}`);
+    // console.log(`0 ${timeScale(0)} / 0.2 ${timeScale(this.windowInMinutes * 0.2)} / 1.2 ${timeScale(this.windowInMinutes * 1.2)} / 2.2 ${timeScale(this.windowInMinutes * 2.2)} `);
 
     // console.log('domain', [this.windowInMinutes * 2 * 60 * 1000, 0])
 
@@ -264,7 +268,7 @@ export class D3Map01 {
       .remove();
 
     d3.select('#clock')
-      .text(this.currentTime.format('h:mm'));
+      .text(this.renderClockText());
   }
 
 
@@ -325,7 +329,20 @@ export class D3Map01 {
   }
 
   private renderClockText = () => {
-
+    const now = moment();
+    if (now.dayOfYear() == this.currentTime.dayOfYear()) {
+      //today
+      return this.currentTime.format('h:mm a');
+    }
+    if (now.dayOfYear() - 1 == this.currentTime.dayOfYear()) {
+      // yesterday
+      return `Yesterday ${this.currentTime.format('h:mm a')}`;
+    }
+    if (now.dayOfYear() - 7 <= this.currentTime.dayOfYear()) {
+      // within a week
+      return this.currentTime.format('dddd h:mm a');
+    }
+    return this.currentTime.format('MMMM D h:mm a');
   }
 
 }
