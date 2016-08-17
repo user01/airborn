@@ -311,28 +311,31 @@ export class D3Map01 {
 
     console.log(this.planePlanes);
 
-    const planes = this.svgCircles
-      .selectAll('circle.plane')
+    const planes = this.svgPlanes
+      .selectAll('text.plane')
       .data(this.planePlanes, R.prop('id'));
 
     planes
       .enter()
-      .append('circle')
+      .append('text')
       .attr('class', 'plane')
-      .attr('fill', 'red')
-      .attr('r', '1em');
+      .attr('font-size', '2em')
+      .attr('font-family', 'FontAwesome')
+      .text('\uf072');
 
     planes
-      // .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
-      .attr('cx', (d) => d3projection([d.lon, d.lat])[0])
-      .attr('cy', (d) => d3projection([d.lon, d.lat])[1])
+      .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
+      .attr('transform', (d, i) => `rotate(${d.track - 45},${d3projection([d.lon, d.lat])[0]},${d3projection([d.lon, d.lat])[1]})`)
+      .attr('text-anchor', 'middle')
+      .attr('x', (d) => d3projection([d.lon, d.lat])[0])
+      .attr('y', (d) => d3projection([d.lon, d.lat])[1])
 
 
     planes.exit()
       .attr('class', 'exit')
       .transition()
       .duration(D3Map01.transitionTime)
-      .attr('r', 0)
+      .attr('opacity', 0)
       .remove();
 
 
