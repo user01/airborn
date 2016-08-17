@@ -20,6 +20,10 @@ const initScreen = () => {
     .transition()
     .duration(6000)
     .style('opacity', 0.15)
+    .transition()
+    .duration(45000)
+    .style('opacity', 0)
+    .remove();
 
   d3.select('#subtitle')
     .text('Charlottesville')
