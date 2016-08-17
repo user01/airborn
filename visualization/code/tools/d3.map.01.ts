@@ -285,29 +285,6 @@ export class D3Map01 {
       .attr("stroke-opacity", 0)
       .remove();
 
-    // console.log(this.planePlanes);
-    // const planes = this.svgPlanes
-    //   .selectAll('.planeIcons')
-    //   .data(this.planePlanes, R.prop('hex'))
-
-    // planes.enter()
-    //   .append('g')
-    //   .append('text')
-    //   .attr('font-family', 'FontAwesome')
-    //   .text('\uf072')
-    //   .attr('transform', (d,i) => `rotate(${i*15})`)
-    //   // .attr('transform', d => `rotate(${d.track})`)
-    //   .attr('fill', 'middle')
-    //   .attr('font-size', '2em')
-    //   .attr('class', d => `aPlane plane.${d.hex}`);
-
-    // planes
-    //   .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
-    //   .attr('transform', (d) => `translate(${d3projection([d.lon, d.lat])})`)
-    //   // .attr('x', (d) => Math.floor(d3projection([d.lon, d.lat])[0]))
-    //   // .attr('y', (d) => Math.floor(d3projection([d.lon, d.lat])[1]))
-
-    // planes.exit().remove();
 
     console.log(this.planePlanes);
 
@@ -320,7 +297,13 @@ export class D3Map01 {
       .append('text')
       .attr('class', 'plane')
       .attr('font-size', '2em')
-      .style({ 'text-shadow': '0px 0px 1em white' })
+      .style({
+        'text-shadow': `
+                      -0.03em -0.03em 0 white,
+                      0.03em -0.03em 0 white,
+                      -0.03em 0.03em 0 white,
+                      0.03em 0.03em 0 white
+                      ` })
       .attr('font-family', 'FontAwesome')
       .text('\uf072');
 
