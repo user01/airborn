@@ -392,6 +392,9 @@ export class D3Map01 {
 
   private renderClockText = () => {
     const now = moment();
+    if (Math.abs(now.diff(this.currentTime, 'seconds')) < 60) {
+      return 'Live';
+    }
     if (now.dayOfYear() == this.currentTime.dayOfYear()) {
       //today
       return this.currentTime.format('h:mma');
