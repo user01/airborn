@@ -5,7 +5,7 @@
 import * as R from 'ramda';
 import * as moment from 'moment';
 
-import data from './local.data.tmp';
+// import data from './local.data.tmp';
 import colorlist from './color.list';
 import Utility from './utility';
 
