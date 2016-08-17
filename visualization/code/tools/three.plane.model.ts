@@ -10,9 +10,9 @@
 // import * as topojson from 'topojson';
 
 
-/** 
+/**
 */
-export class ThreeTest {
+export class PlaneModel {
 
   private parent;
   private renderer;
@@ -59,8 +59,6 @@ export class ThreeTest {
   }
 
 
-
-
   private animate = () => {
 
   }
@@ -68,4 +66,4 @@ export class ThreeTest {
 }
 
 
-export default ThreeTest;
+export default PlaneModel;
