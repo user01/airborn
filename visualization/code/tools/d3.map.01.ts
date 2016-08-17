@@ -87,7 +87,7 @@ export class D3Map01 {
       this.timeFactor = 1;
     }
     this.resetData();
-    setTimeout(this.tick, this.tickLengthMs);
+    // setTimeout(this.tick, this.tickLengthMs);
   }
 
   private loadDataIfRequired = () => {
@@ -129,6 +129,15 @@ export class D3Map01 {
     const activeTime = this.CurrentTime.add(-this.windowInMinutes * 0.2, 'minutes');
     const endTime = this.CurrentTime;
 
+    const timeScale = d3.scale.linear()
+      .domain([0, this.windowInMinutes * 0.5, this.windowInMinutes * 2])
+      .range([0, 0.08, 0.8]).clamp(true);
+    const totalMinutes = endTime.diff(activeTime, 'minutes');
+    console.log(`Total minutes ${totalMinutes}`);
+    console.log(`0 ${timeScale(0)} / 0.2 ${timeScale(this.windowInMinutes * 0.2)} / 1.2 ${timeScale(this.windowInMinutes * 1.2)} / 2.2 ${timeScale(this.windowInMinutes * 2.2)} `);
+
+    // console.log('domain', [this.windowInMinutes * 2 * 60 * 1000, 0])
+
     const upToDateHexes = R.pipe(
       R.filter((d: any) => d.date.isAfter(activeTime)),
       R.map(R.prop('hex')),
@@ -143,26 +152,18 @@ export class D3Map01 {
       R.values,
       R.map((entrySet: Array<any>) => {
 
-        const minDate =
-          (<any>R.pipe)(
-            R.map(R.prop('date')),
-            moment.min
-          )(entrySet);
-        const maxDate =
-          (<any>R.pipe)(
-            R.map(R.prop('date')),
-            moment.max
-          )(entrySet);
-        const millisecondsRange = maxDate.diff(minDate);
-
-
         return R.map((datum: any) => {
+          const minutes = datum.date.diff(activeTime, 'minutes');
+          const fraction = minutes < 0 ? 0 : minutes / totalMinutes;
           return {
             id: datum._id,
             lon: datum.lon,
             lat: datum.lat,
             hex: datum.hex,
-            fraction: isNaN(moment(datum.date).diff(minDate) / millisecondsRange) ? 0 : moment(datum.date).diff(minDate) / millisecondsRange,
+            fraction,
+            // fraction: minutes / totalMinutes,
+            // fraction: moment(datum.date).diff(activeTime,'minutes') / totalMinutes,
+            // fraction2: moment(datum.date).diff(activeTime),
             date: datum.date.valueOf()
           };
         }, entrySet);
@@ -176,15 +177,16 @@ export class D3Map01 {
       R.mapObjIndexed((values: Array<any>, hex, obj) => {
         return {
           hex,
-          values: R.sortBy(R.prop('fraction'), values)
+          values: R.sortBy(R.prop('date'), values)
         };
       }),
       R.values
       // R.take(1)
     )(this.planeDots);
 
-    // console.log(this.planeDots);
-    // console.log(this.planeLines);
+    // console.log(R.map(R.prop('fraction'), this.planeDots));
+    // console.log(R.map(R.prop('fraction2'), this.planeDots));
+    console.log(this.planeLines);
     this.renderPosition();
     this.renderStyle();
     // setTimeout(this.loadData, 10000);
@@ -234,7 +236,7 @@ export class D3Map01 {
 
 
     const line = d3.svg.line()
-      .interpolate("cardinal")
+      .interpolate("linear")
       .x((d: any) => d3projection([d.lon, d.lat])[0])
       .y((d: any) => d3projection([d.lon, d.lat])[1]);
 
