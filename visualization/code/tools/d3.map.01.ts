@@ -175,7 +175,8 @@ export class D3Map01 {
               date: datum.date.valueOf()
             };
           }),
-          R.sortBy(R.prop('date'))
+          R.sortBy(R.prop('date')),
+          R.reverse
         )(entrySet);
         return {
           dots: R.tail(dataSet),
@@ -215,7 +216,7 @@ export class D3Map01 {
   }
 
   private renderPosition = () => {
-    // console.log('Rendering positions');
+    console.log('Rendering positions');
 
     // const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
     // const colorScale = d3.scale.ordinal()
@@ -233,12 +234,13 @@ export class D3Map01 {
       .scale(scale);
 
     const dots = this.svgCircles
-      .selectAll('circle')
+      .selectAll('circle.dot')
       .data(this.planeDots, R.prop('id'));
 
     dots
       .enter()
       .append('circle')
+      .attr('class', 'dot')
       .attr('r', 0);
 
     dots
@@ -307,17 +309,20 @@ export class D3Map01 {
 
     // planes.exit().remove();
 
+    console.log(this.planePlanes);
+
     const planes = this.svgCircles
-      .selectAll('circle')
+      .selectAll('circle.plane')
       .data(this.planePlanes, R.prop('id'));
 
     planes
       .enter()
       .append('circle')
+      .attr('class', 'plane')
+      .attr('fill', 'red')
       .attr('r', '1em');
 
     planes
-      .attr('fill', 'red')
       // .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
       .attr('cx', (d) => d3projection([d.lon, d.lat])[0])
       .attr('cy', (d) => d3projection([d.lon, d.lat])[1])
@@ -342,7 +347,7 @@ export class D3Map01 {
 
 
     const dots = this.svgCircles
-      .selectAll('circle')
+      .selectAll('circle.dot')
       .data(this.planeDots, R.prop('id'));
 
 
