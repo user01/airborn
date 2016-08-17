@@ -16,12 +16,12 @@ declare var topojson: any;
 export class D3Map01 {
 
   private get CurrentTime() { return this.currentTime.clone(); }
-  private currentTime: moment.Moment = moment().add(-4, 'hours');
+  private currentTime: moment.Moment = moment().add(-1, 'hours');
   private timeFactor: number = 45;
-  private tickLengthMs = 1000;
+  private tickLengthMs = 300;
   private windowInMinutes: number = 120;
 
-  private static transitionTime = 500;
+  private static transitionTime = 300;
 
   private width: number;
   private height: number;
@@ -83,6 +83,7 @@ export class D3Map01 {
 
     this.currentTime.add(this.tickLengthMs * this.timeFactor, 'milliseconds');
     if (this.currentTime.isAfter(moment())) {
+      console.log('Past current time');
       this.currentTime = moment();
       this.timeFactor = 1;
     }
@@ -104,7 +105,7 @@ export class D3Map01 {
 
   private loadData = (start: moment.Moment, end: moment.Moment) => {
     console.log(`Loading data for ${start.format('h:mm:ss a')} ${end.format('h:mm:ss a')}`);
-    const url = `https://alpha.codex10.com/airborn/planes/${start.toISOString()}/${end.toISOString()}/184a711d-2a72-4160-afa1-b46c26277184`;
+    const url = `https://beta.codex10.com/airborn/planes/${start.toISOString()}/${end.toISOString()}/184a711d-2a72-4160-afa1-b46c26277184`;
     d3.json(url, (err, data: any) => {
       if (err) {
         console.error('Pull error', err);
