@@ -7,7 +7,7 @@ const fetch = require('fetch');
 const moment = require('moment');
 const postjson = require('post-json');
 
-const postURL = "https://alpha.codex10.com/airborn/planeupdate";
+const postURL = "https://beta.codex10.com/airborn/planeupdate";
 const token = "184a711d-2a72-4160-afa1-b46c26277184";
 
 const startTime = moment();
