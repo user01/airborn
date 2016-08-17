@@ -320,6 +320,7 @@ export class D3Map01 {
       .append('text')
       .attr('class', 'plane')
       .attr('font-size', '2em')
+      .style({ 'text-shadow': '0px 0px 1em white' })
       .attr('font-family', 'FontAwesome')
       .text('\uf072');
 
