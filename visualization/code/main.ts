@@ -12,6 +12,24 @@ const initScreen = () => {
   // const threeTest = new ThreeTest(document.getElementById('threejs'));
   // const d3test = new D3Test(document.getElementById('d3'));
   const d3map01 = new D3Map01(map.map, document.getElementById('d3'));
+
+  d3.select('#title')
+    .text('Airspace')
+    .transition()
+    .duration(8000)
+    .transition()
+    .duration(6000)
+    .style('opacity', 0.15)
+
+  d3.select('#subtitle')
+    .text('Charlottesville')
+    .transition()
+    .duration(8000)
+    .transition()
+    .duration(6000)
+    .style('opacity', 0)
+    .remove();
+
 }
 
 document.addEventListener('DOMContentLoaded', initScreen, false);
