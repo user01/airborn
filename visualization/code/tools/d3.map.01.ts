@@ -107,15 +107,16 @@ export class D3Map01 {
   }
 
   private loadData = (start: moment.Moment, end: moment.Moment) => {
-    console.log(`Loading data for ${start.format('h:mm:ss a')} ${end.format('h:mm:ss a')}`);
+    // console.log(`Loading data for ${start.format('h:mm:ss a')} ${end.format('h:mm:ss a')}`);
     const url = `https://beta.codex10.com/airborn/planes/${start.toISOString()}/${end.toISOString()}/184a711d-2a72-4160-afa1-b46c26277184`;
+    // console.log(url);
     d3.json(url, (err, data: any) => {
       if (err) {
         console.error('Pull error', err);
         return;
       }
 
-      console.log('  ------------- New JSON');
+      // console.log('  ------------- New JSON');
       this.currentRawPlaneData = R.pipe(
         R.map((datum: any) => R.merge(datum, { date: moment(datum.date) })),
         R.concat(this.currentRawPlaneData)
@@ -131,7 +132,7 @@ export class D3Map01 {
 
   private resetData = () => {
 
-    console.log(`Entry count: ${this.currentRawPlaneData.length}`);
+    // console.log(`Entry count: ${this.currentRawPlaneData.length}`);
 
     const startTime = this.CurrentTime.add(-this.windowInMinutes, 'minutes');
     const activeTime = this.CurrentTime.add(-this.windowInMinutes * 0.2, 'minutes');
@@ -169,6 +170,7 @@ export class D3Map01 {
               lon: datum.lon,
               lat: datum.lat,
               hex: datum.hex,
+              track: datum.track,
               fraction,
               date: datum.date.valueOf()
             };
@@ -204,7 +206,7 @@ export class D3Map01 {
 
     // console.log(R.map(R.prop('fraction'), this.planeDots));
     // console.log(R.map(R.prop('fraction2'), this.planeDots));
-    console.log(this.planeLines);
+    // console.log(this.planeLines);
     this.renderPosition();
     this.renderStyle();
     // setTimeout(this.loadData, 10000);
@@ -213,7 +215,7 @@ export class D3Map01 {
   }
 
   private renderPosition = () => {
-    console.log('Rendering positions');
+    // console.log('Rendering positions');
 
     // const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
     // const colorScale = d3.scale.ordinal()
@@ -281,24 +283,54 @@ export class D3Map01 {
       .attr("stroke-opacity", 0)
       .remove();
 
+    // console.log(this.planePlanes);
+    // const planes = this.svgPlanes
+    //   .selectAll('.planeIcons')
+    //   .data(this.planePlanes, R.prop('hex'))
 
-    const planes = this.svgPlanes
-      .selectAll('.planeIcons')
-      .data(this.planePlanes, R.prop('hex'))
+    // planes.enter()
+    //   .append('g')
+    //   .append('text')
+    //   .attr('font-family', 'FontAwesome')
+    //   .text('\uf072')
+    //   .attr('transform', (d,i) => `rotate(${i*15})`)
+    //   // .attr('transform', d => `rotate(${d.track})`)
+    //   .attr('fill', 'middle')
+    //   .attr('font-size', '2em')
+    //   .attr('class', d => `aPlane plane.${d.hex}`);
 
-    planes.enter()
-      .append('text')
-      .text('P')
-      .attr('fill', 'middle')
-      .attr('font-size', '1em')
-      .attr('class', 'aPlane');
+    // planes
+    //   .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
+    //   .attr('transform', (d) => `translate(${d3projection([d.lon, d.lat])})`)
+    //   // .attr('x', (d) => Math.floor(d3projection([d.lon, d.lat])[0]))
+    //   // .attr('y', (d) => Math.floor(d3projection([d.lon, d.lat])[1]))
+
+    // planes.exit().remove();
+
+    const planes = this.svgCircles
+      .selectAll('circle')
+      .data(this.planePlanes, R.prop('id'));
 
     planes
-      .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
-      .attr('x', (d) => d3projection([d.lon, d.lat])[0])
-      .attr('y', (d) => d3projection([d.lon, d.lat])[1])
+      .enter()
+      .append('circle')
+      .attr('r', '1em');
 
-    planes.exit().remove();
+    planes
+      .attr('fill', 'red')
+      // .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
+      .attr('cx', (d) => d3projection([d.lon, d.lat])[0])
+      .attr('cy', (d) => d3projection([d.lon, d.lat])[1])
+
+
+    planes.exit()
+      .attr('class', 'exit')
+      .transition()
+      .duration(D3Map01.transitionTime)
+      .attr('r', 0)
+      .remove();
+
+
 
     d3.select('#clock')
       .text(this.renderClockText());
@@ -306,7 +338,7 @@ export class D3Map01 {
 
 
   private renderStyle = () => {
-    console.log('Rendering styles');
+    // console.log('Rendering styles');
 
 
     const dots = this.svgCircles
