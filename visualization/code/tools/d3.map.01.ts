@@ -17,7 +17,7 @@ export class D3Map01 {
 
   private get CurrentTime() { return this.currentTime.clone(); }
   private currentTime: moment.Moment = moment().add(-4, 'hours');
-  private timeFactor: number = 12;
+  private timeFactor: number = 45;
   private tickLengthMs = 1000;
   private windowInMinutes: number = 120;
 
@@ -87,7 +87,7 @@ export class D3Map01 {
       this.timeFactor = 1;
     }
     this.resetData();
-    // setTimeout(this.tick, this.tickLengthMs);
+    setTimeout(this.tick, this.tickLengthMs);
   }
 
   private loadDataIfRequired = () => {
