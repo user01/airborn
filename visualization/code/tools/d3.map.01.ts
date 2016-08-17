@@ -305,14 +305,19 @@ export class D3Map01 {
                       0.03em 0.03em 0 white
                       ` })
       .attr('font-family', 'FontAwesome')
-      .text('\uf072');
-
-    planes
-      .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
-      .attr('transform', (d, i) => `rotate(${d.track - 45},${d3projection([d.lon, d.lat])[0]},${d3projection([d.lon, d.lat])[1]})`)
-      .attr('text-anchor', 'middle')
+      .text('\uf072')
       .attr('x', (d) => d3projection([d.lon, d.lat])[0])
       .attr('y', (d) => d3projection([d.lon, d.lat])[1])
+      .attr('transform', (d, i) => `rotate(${d.track - 45},${d3projection([d.lon, d.lat])[0]},${d3projection([d.lon, d.lat])[1]})`)
+      .attr('fill', (d) => { return Utility.ColorFromStr(d.hex); })
+      .attr('text-anchor', 'middle');
+
+    planes
+      .transition()
+      .duration(D3Map01.transitionTime)
+      .attr('transform', (d, i) => `rotate(${d.track - 45},${d3projection([d.lon, d.lat])[0]},${d3projection([d.lon, d.lat])[1]})`)
+      .attr('x', (d) => d3projection([d.lon, d.lat])[0])
+      .attr('y', (d) => d3projection([d.lon, d.lat])[1]);
 
 
     planes.exit()
