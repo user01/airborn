@@ -81,7 +81,7 @@ export class D3Map01 {
 
   private tick = () => {
     // on every tick
-    console.log('  -- Tick --');
+    // console.log('  -- Tick --');
     this.loadDataIfRequired();
 
     this.currentTime.add(this.tickLengthMs * this.timeFactor, 'milliseconds');
@@ -216,7 +216,7 @@ export class D3Map01 {
   }
 
   private renderPosition = () => {
-    console.log('Rendering positions');
+    // console.log('Rendering positions');
 
     // const planeHexes = R.pipe(R.map(R.prop('hex')), R.uniq)(this.planeDots);
     // const colorScale = d3.scale.ordinal()
@@ -286,7 +286,7 @@ export class D3Map01 {
       .remove();
 
 
-    console.log(this.planePlanes);
+    // console.log(this.planePlanes);
 
     const planes = this.svgPlanes
       .selectAll('text.plane')
