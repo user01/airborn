@@ -389,17 +389,17 @@ export class D3Map01 {
     const now = moment();
     if (now.dayOfYear() == this.currentTime.dayOfYear()) {
       //today
-      return this.currentTime.format('h:mm a');
+      return this.currentTime.format('h:mma');
     }
     if (now.dayOfYear() - 1 == this.currentTime.dayOfYear()) {
       // yesterday
-      return `Yesterday ${this.currentTime.format('h:mm a')}`;
+      return `Yesterday ${this.currentTime.format('h:mma')}`;
     }
     if (now.dayOfYear() - 7 <= this.currentTime.dayOfYear()) {
       // within a week
-      return this.currentTime.format('dddd h:mm a');
+      return this.currentTime.format('dddd h:mma');
     }
-    return this.currentTime.format('MMMM D h:mm a');
+    return this.currentTime.format('MMMM D h:mma');
   }
 
 }
