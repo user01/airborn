@@ -58,7 +58,7 @@ export class D3Map01 {
 
     this.map.on("viewreset", this.renderPosition);
     this.map.on("move", this.renderPosition);
-    document.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('resize', () => {
       this.resize();
       this.renderPosition();
     }, false);
@@ -87,7 +87,7 @@ export class D3Map01 {
       this.timeFactor = 1;
     }
     this.resetData();
-    setTimeout(this.tick, this.tickLengthMs);
+    // setTimeout(this.tick, this.tickLengthMs);
   }
 
   private loadDataIfRequired = () => {
@@ -322,6 +322,10 @@ export class D3Map01 {
       }
 
     );
+  }
+
+  private renderClockText = () => {
+
   }
 
 }
