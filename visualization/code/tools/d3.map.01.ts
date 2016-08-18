@@ -1,22 +1,22 @@
-
 /// <reference path="../../typings/references.d.ts" />
-
 
 import * as R from 'ramda';
 import * as moment from 'moment';
-
-// import data from './local.data.tmp';
-import colorlist from './color.list';
-import Utility from './utility';
-
 declare var topojson: any;
 
-/**
-*/
-export class D3Map01 {
+import colorlist from './color.list';
+import {Utility} from './utility';
+// import {Utility, MapPlan} from './utility';
+
+export class D3PlaneMap {
 
   private get CurrentTime() { return this.currentTime.clone(); }
   private currentTime: moment.Moment = moment().add(-1, 'hours');
+
+  // private currentPlan: MapPlan = {
+  //   timeStart: moment(),
+  //   timeEnd: moment()
+  // };
   private timeFactor: number = 45;
   private tickLengthMs = 300;
   private windowInMinutes: number = 120;
@@ -50,7 +50,6 @@ export class D3Map01 {
       .attr("width", this.width)
       .attr("height", this.height)
       .append("g")
-      // .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
       .attr("transform", "translate(0,0)");
 
     this.svgCircles = this.svg.append('g').attr('class', 'circles');
@@ -79,8 +78,8 @@ export class D3Map01 {
     this.rawPlaneEndDate = moment.max(dates);
   }
 
+  /** Ticks are the chance to make logical updates */
   private tick = () => {
-    // on every tick
     // console.log('  -- Tick --');
     this.loadDataIfRequired();
 
@@ -252,7 +251,7 @@ export class D3Map01 {
     dots.exit()
       .attr('class', 'exit')
       .transition()
-      .duration(D3Map01.transitionTime)
+      .duration(D3PlaneMap.transitionTime)
       .attr('r', 0)
       .remove();
 
@@ -281,7 +280,7 @@ export class D3Map01 {
     lines
       .exit()
       .transition()
-      .duration(D3Map01.transitionTime)
+      .duration(D3PlaneMap.transitionTime)
       .attr("stroke-opacity", 0)
       .remove();
 
@@ -314,7 +313,7 @@ export class D3Map01 {
 
     planes
       .transition()
-      .duration(D3Map01.transitionTime)
+      .duration(D3PlaneMap.transitionTime)
       .attr('transform', (d, i) => `rotate(${d.track - 45},${d3projection([d.lon, d.lat])[0]},${d3projection([d.lon, d.lat])[1]})`)
       .attr('x', (d) => d3projection([d.lon, d.lat])[0])
       .attr('y', (d) => d3projection([d.lon, d.lat])[1]);
@@ -323,7 +322,7 @@ export class D3Map01 {
     planes.exit()
       .attr('class', 'exit')
       .transition()
-      .duration(D3Map01.transitionTime)
+      .duration(D3PlaneMap.transitionTime)
       .attr('opacity', 0)
       .remove();
 
@@ -345,7 +344,7 @@ export class D3Map01 {
 
     dots
       .transition()
-      .duration(D3Map01.transitionTime)
+      .duration(D3PlaneMap.transitionTime)
       .attr('r', (d) => {
         // const size = 0.05 * d.fraction;
         // return `${size}em`;
@@ -354,7 +353,7 @@ export class D3Map01 {
 
     dots.exit()
       .transition()
-      .duration(D3Map01.transitionTime)
+      .duration(D3PlaneMap.transitionTime)
       .attr("r", 0)
       .remove();
 
@@ -365,7 +364,7 @@ export class D3Map01 {
 
     lines
       .transition()
-      .duration(D3Map01.transitionTime)
+      .duration(D3PlaneMap.transitionTime)
       .attr("stroke-opacity", 1);
 
   }
@@ -413,4 +412,4 @@ export class D3Map01 {
 }
 
 
-export default D3Map01;
+export default D3PlaneMap;

@@ -10,8 +10,6 @@ import colorlist from './color.list';
 
 declare var topojson: any;
 
-/**
-*/
 export class Utility {
   public static Hash = (str: string) => {
     var hash = 0, i, chr, len;
@@ -29,6 +27,18 @@ export class Utility {
     return colorlist[num];
   }
 }
+
+// Play from time until reaching present time (or end time), then if cycling set time back to start, otherwise set to real time (1)
+
+// export interface MapPlan {
+//   id: number; //indicates which version is latest
+//   timeStart: moment.Moment; // when playback should begin
+//   timeEnd: moment.Moment; // when playback should end
+//   timeFactor: number; //rate factor
+//   timeCycle: boolean; // when reaching time end, snap back to timeStart
+//   locked: boolean; // prevent further updates until unlock
+//   demo: boolean; // don't pull from the server, use the backups
+// }
 
 
 export default Utility;
