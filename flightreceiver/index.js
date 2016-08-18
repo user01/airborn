@@ -141,6 +141,13 @@ server.post(rootUrl + '/planeupdate', handlePlaneUpdate);
 server.get(rootUrl + '/planes/:startDate/:endDate/:token', handlePlanes);
 
 
+
+server.post(rootUrl + '/testcmd', handleTestCmd);
+
+
+
+
+
 //prevent keep alive
 server.pre(restify.pre.userAgentConnection());
 server.listen(8082, function () {
