@@ -30,15 +30,17 @@ export class Utility {
 
 // Play from time until reaching present time (or end time), then if cycling set time back to start, otherwise set to real time (1)
 
-// export interface MapPlan {
-//   id: number; //indicates which version is latest
-//   timeStart: moment.Moment; // when playback should begin
-//   timeEnd: moment.Moment; // when playback should end
-//   timeFactor: number; //rate factor
-//   timeCycle: boolean; // when reaching time end, snap back to timeStart
-//   locked: boolean; // prevent further updates until unlock
-//   demo: boolean; // don't pull from the server, use the backups
-// }
+export interface MapPlan {
+  id: number; //indicates which version is latest
+  timeStart: moment.Moment; // when playback should begin
+  timeEnd: moment.Moment; // when playback should end
+  timeFactor: number; //rate factor
+  timeCurrent: moment.Moment;
+  timeCycle: boolean; // when reaching time end, snap back to timeStart
+  timeRun: boolean; // should progress time
+  locked: boolean; // prevent further updates until unlock
+  demo: boolean; // don't pull from the server, use the backups
+}
 
 
 export default Utility;
