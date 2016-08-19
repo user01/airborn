@@ -4,11 +4,12 @@ const R = require('ramda');
 const fs = require('fs');
 const moment = require('moment');
 const Promise = require('bluebird');
-const Datastore = require('nedb'),
-  db = Promise.promisifyAll(new Datastore({
-    filename: 'planes.datafile',
-    autoload: true
-  }));
+const Datastore = require('nedb');
+const handleSlackCommand = require('./handle.slack.command.js');
+const db = Promise.promisifyAll(new Datastore({
+  filename: 'planes.datafile',
+  autoload: true
+}));
 
 
 const token = "184a711d-2a72-4160-afa1-b46c26277184";
@@ -20,7 +21,7 @@ const server = restify.createServer();
 server.use(restify.CORS());
 server.use(restify.bodyParser());
 server.use(restify.throttle({
-  rate: 0.085 * 100, //~ 5 per minute * 100
+  rate: 0.085 * 20, //~ 5 per minute * 20
   burst: 15,
   ip: true,
   // overrides: {
@@ -140,13 +141,7 @@ const handlePlanes = (req, res, next) => {
 server.post(rootUrl + '/planeupdate', handlePlaneUpdate);
 server.get(rootUrl + '/planes/:startDate/:endDate/:token', handlePlanes);
 
-
-
-server.post(rootUrl + '/testcmd', handleTestCmd);
-
-
-
-
+server.post(rootUrl + '/slack', handleSlackCommand);
 
 //prevent keep alive
 server.pre(restify.pre.userAgentConnection());
