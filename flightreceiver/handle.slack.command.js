@@ -6,6 +6,7 @@ const moment = require('moment');
 const Promise = require('bluebird');
 const Datastore = require('nedb');
 const templates = require('./templates.js');
+const handlePlaneCommand = require('handle.plane.command.js');
 const slackCommandsDb = Promise.promisifyAll(new Datastore({
   filename: 'slack.commands.datafile',
   autoload: true
@@ -18,11 +19,11 @@ const validTokens = [
   'M4gaVdees0u1l1EV7ctbtpLD'  // sandbox
 ]
 
-function isNullOrWhitespace(input) {
+const isNullOrWhitespace = (input) => {
   return !input || !input.trim();
 }
 
-export const handleSlackCmd = function (req, res, next) {
+export const handleSlackCommand = (req, res, next) => {
   try {
     var data = ((typeof req.body == 'string') ? queryString.parse(req.body.substr(0, 2048)) : req.body) || {};
     if (!data.token || validTokens.indexOf(data.token) < 0) {
@@ -71,12 +72,12 @@ const handleCommand = (text, name) => {
   const parameters = match[2];
 
   switch (cmd) {
-    case 'plane':
-      return Promise.resolve('Attempting to run a plane command');
+    case 'airborn':
+      return Promise.resolve(handlePlaneCommand(parameters, name));
     default:
       return Promise.resolve(templates.badCommand(cmd, name));
   }
 }
 
 
-export default handleSlackCmd;
+export default handleSlackCommand;
