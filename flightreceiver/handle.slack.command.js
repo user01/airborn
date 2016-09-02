@@ -6,7 +6,7 @@ const moment = require('moment');
 const Promise = require('bluebird');
 const Datastore = require('nedb');
 const templates = require('./templates.js');
-const handlePlaneCommand = require('handle.plane.command.js');
+const handlePlaneCommand = require('./handle.plane.command.js');
 const slackCommandsDb = Promise.promisifyAll(new Datastore({
   filename: 'slack.commands.datafile',
   autoload: true
@@ -81,6 +81,6 @@ const handleCommand = (text, name) => {
 
 
 
-module.exports = {
+module.exports =
   handleSlackCommand
-};
+;

@@ -37,7 +37,7 @@ const baselineMapPlan = {
 };
 const parseCommand = /\s*(\w+)\s*(.*)/;
 
-export const handlePlaneCommand = (cmdStr, name) => {
+const handlePlaneCommand = (cmdStr, name) => {
   // this maintains 2 basic things: a running set of all accepted commands and the current full command
   //
   const match = parseCommand.exec(cmdStr);
@@ -55,9 +55,11 @@ export const handlePlaneCommand = (cmdStr, name) => {
   }
 }
 
-export const returnCurrentPlaneState = () => {
+const returnCurrentPlaneState = () => {
 
 }
 
 
-export default handlePlaneCommand;
+module.exports =
+  handlePlaneCommand
+;
