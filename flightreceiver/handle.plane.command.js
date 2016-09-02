@@ -37,9 +37,9 @@ const baselineMapPlan = {
 };
 const parseCommand = /\s*(\w+)\s*(.*)/;
 
-const handlePlaneCommand = (cmdStr, name) => {
+export const handlePlaneCommand = (cmdStr, name) => {
   // this maintains 2 basic things: a running set of all accepted commands and the current full command
-  // 
+  //
   const match = parseCommand.exec(cmdStr);
   if (isNullOrWhitespace(cmdStr) || !match) {
     return Promise.resolve(templates.empty(name));
@@ -54,5 +54,10 @@ const handlePlaneCommand = (cmdStr, name) => {
       return Promise.resolve(templates.badCommand(cmd, name));
   }
 }
+
+export const returnCurrentPlaneState = () => {
+
+}
+
 
 export default handlePlaneCommand;

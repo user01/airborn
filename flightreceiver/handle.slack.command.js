@@ -23,7 +23,7 @@ const isNullOrWhitespace = (input) => {
   return !input || !input.trim();
 }
 
-export const handleSlackCommand = (req, res, next) => {
+const handleSlackCommand = (req, res, next) => {
   try {
     var data = ((typeof req.body == 'string') ? queryString.parse(req.body.substr(0, 2048)) : req.body) || {};
     if (!data.token || validTokens.indexOf(data.token) < 0) {
@@ -80,4 +80,7 @@ const handleCommand = (text, name) => {
 }
 
 
-export default handleSlackCommand;
+
+module.exports = {
+  handleSlackCommand
+};
