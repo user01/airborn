@@ -42,7 +42,7 @@ const handlePlaneCommand = (cmdStr, name) => {
       const timeFactor = R.pipe(
         parseInt,
         R.defaultTo(45),
-        R.min(120),
+        R.min(360),
         R.max(1)
       )(parameters);
       currentMapPlan = R.merge(currentMapPlan, { timeFactor });
