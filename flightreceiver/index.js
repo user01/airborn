@@ -6,6 +6,7 @@ const moment = require('moment');
 const Promise = require('bluebird');
 const Datastore = require('nedb');
 const handleSlackCommand = require('./handle.slack.command.js');
+const {currentMapState} = require('./handle.plane.command.js');
 const db = Promise.promisifyAll(new Datastore({
   filename: 'planes.datafile',
   autoload: true
@@ -142,6 +143,8 @@ server.post(rootUrl + '/planeupdate', handlePlaneUpdate);
 server.get(rootUrl + '/planes/:startDate/:endDate/:token', handlePlanes);
 
 server.post(rootUrl + '/slack', handleSlackCommand);
+server.get(rootUrl + '/mapstate', currentMapState);
+
 
 //prevent keep alive
 server.pre(restify.pre.userAgentConnection());
