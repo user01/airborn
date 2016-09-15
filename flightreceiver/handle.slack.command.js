@@ -45,7 +45,7 @@ const handleSlackCommand = (req, res, next) => {
 
   slackCommandsDb.insertAsync(data)
     .then((newDoc) => {
-      return db.findAsync({
+      return slackCommandsDb.findAsync({
         user_name: data.user_name,
         date: {
           $gt: moment().add(-60, 'seconds').toDate()
