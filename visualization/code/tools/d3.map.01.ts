@@ -449,7 +449,7 @@ export class D3PlaneMap {
       R.trim,
       D3PlaneMap.capitalizeFirstLetter
     )(newPlan.controller);
-    if (name == 'erik' || name == '') { return 'EMPTY'; }
+    if (name == 'Erik' || name == '') { return ''; }
     if (currentPlan.timeFactor < newPlan.timeFactor) {
       return `${name} sped up time to ${Math.floor(newPlan.timeFactor)}x`;
     }
