@@ -5,19 +5,22 @@ import * as moment from 'moment';
 declare var topojson: any;
 
 import colorlist from './color.list';
-import {Utility} from './utility';
-// import {Utility, MapPlan} from './utility';
+// import {Utility} from './utility';
+import {Utility, MapPlan} from './utility';
 
 export class D3PlaneMap {
 
   private get CurrentTime() { return this.currentTime.clone(); }
-  private currentTime: moment.Moment = moment().add(-1, 'hours');
+  private earliestTime: moment.Moment = moment().add(-24, 'hours');
+  private currentTime = this.earliestTime.clone();
 
-  // private currentPlan: MapPlan = {
-  //   timeStart: moment(),
-  //   timeEnd: moment()
-  // };
-  private timeFactor: number = 45;
+  private plan: MapPlan = {
+    index: 0,
+    timeFactor: 45,
+    loop: false,
+    controller: ''
+  };
+  // private timeFactor: number = 45;
   private tickLengthMs = 300;
   private windowInMinutes: number = 120;
 
@@ -80,14 +83,18 @@ export class D3PlaneMap {
 
   /** Ticks are the chance to make logical updates */
   private tick = () => {
-    // console.log('  -- Tick --');
+    console.log(`  -- Tick --  ${this.tickLengthMs * this.plan.timeFactor} ms`);
     this.loadDataIfRequired();
 
-    this.currentTime.add(this.tickLengthMs * this.timeFactor, 'milliseconds');
+    this.currentTime.add(this.tickLengthMs * this.plan.timeFactor, 'milliseconds');
     if (this.currentTime.isAfter(moment())) {
       console.log('Past current time');
-      this.currentTime = moment();
-      this.timeFactor = 1;
+      if (this.plan.loop) {
+        this.currentTime = this.earliestTime.clone();
+      } else {
+        this.currentTime = moment();
+        this.plan.timeFactor = 1;
+      }
     }
     this.resetData();
     setTimeout(this.tick, this.tickLengthMs);
