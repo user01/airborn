@@ -21,7 +21,7 @@ const server = restify.createServer();
 server.use(restify.CORS());
 server.use(restify.bodyParser());
 server.use(restify.throttle({
-  rate: 0.085 * 20, //~ 5 per minute * 20
+  rate: 0.085 * 20 * 20, //~ 5 per minute * 20 * 20
   burst: 15,
   ip: true,
   // overrides: {
