@@ -32,6 +32,10 @@ const initScreen = () => {
     .style('opacity', 0)
     .remove();
 
+  setTimeout(() => {
+    // force a refresh every 30 minutes, just in case it gets stuck
+    window.location.reload();
+  }, 1800 * 1000);
 }
 
 document.addEventListener('DOMContentLoaded', initScreen, false);
