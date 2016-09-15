@@ -65,7 +65,7 @@ const handleSlackCommand = (req, res, next) => {
 }
 
 const parseCommand = /\s*(\w+)\s*(.*)/;
-const handleCommand = (text, name) => {
+const handleCommand = (cmdStr, name) => {
   const match = parseCommand.exec(cmdStr);
   if (isNullOrWhitespace(cmdStr) || !match) {
     return Promise.resolve(templates.empty(name));
