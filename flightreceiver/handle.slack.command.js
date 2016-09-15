@@ -5,6 +5,7 @@ const fs = require('fs');
 const moment = require('moment');
 const Promise = require('bluebird');
 const Datastore = require('nedb');
+const queryString = require('query-string');
 const templates = require('./templates.js');
 const {handlePlaneCommand} = require('./handle.plane.command.js');
 const slackCommandsDb = Promise.promisifyAll(new Datastore({
