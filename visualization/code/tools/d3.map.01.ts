@@ -10,8 +10,8 @@ import {Utility, MapPlan} from './utility';
 export class D3PlaneMap {
 
   private get CurrentTime() { return this.currentTime.clone(); }
-  private earliestTime: moment.Moment = moment().add(-12, 'hours'); //TODO: Switch this to 24 hours
-  // private earliestTime: moment.Moment = moment().add(-24, 'hours'); //TODO: Switch this to 24 hours
+  // private earliestTime: moment.Moment = moment().add(-12, 'hours'); //TODO: Switch this to 24 hours
+  private earliestTime: moment.Moment = moment().add(-24, 'hours'); //TODO: Switch this to 24 hours
   private currentTime = this.earliestTime.clone();
 
   private plan: MapPlan = {
