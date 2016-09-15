@@ -5,23 +5,24 @@ import * as moment from 'moment';
 declare var topojson: any;
 
 import colorlist from './color.list';
-// import {Utility} from './utility';
 import {Utility, MapPlan} from './utility';
 
 export class D3PlaneMap {
 
   private get CurrentTime() { return this.currentTime.clone(); }
-  private earliestTime: moment.Moment = moment().add(-24, 'hours');
+  private earliestTime: moment.Moment = moment().add(-12, 'hours'); //TODO: Switch this to 24 hours
+  // private earliestTime: moment.Moment = moment().add(-24, 'hours'); //TODO: Switch this to 24 hours
   private currentTime = this.earliestTime.clone();
 
   private plan: MapPlan = {
-    index: 0,
+    index: '',
     timeFactor: 45,
     loop: false,
     controller: ''
   };
   // private timeFactor: number = 45;
   private tickLengthMs = 300;
+  private cmdLengthMs = 5000;
   private windowInMinutes: number = 120;
 
   private static transitionTime = 300;
@@ -60,6 +61,7 @@ export class D3PlaneMap {
     this.svgPlanes = this.svg.append('g').attr('class', 'planes');
 
     this.tick();
+    this.tickCmd();
 
     this.map.on("viewreset", this.renderPosition);
     this.map.on("move", this.renderPosition);
@@ -98,6 +100,32 @@ export class D3PlaneMap {
     }
     this.resetData();
     setTimeout(this.tick, this.tickLengthMs);
+  }
+
+  private tickCmd = () => {
+    d3.json("https://beta.codex10.com/airborn/mapstate", (err, plan: MapPlan) => {
+      if (err) {
+        console.warn('Unable to get map state', err);
+        return;
+      }
+      if (R.equals(plan, this.plan)) {
+        return;
+      }
+      console.log('Heard new plan!', plan)
+
+      d3.select('#feedback')
+        .text(D3PlaneMap.feedbackMessage(this.plan, plan))
+        .transition()
+        .duration(500)
+        .style('opacity', 1)
+        .duration(8000)
+        .transition()
+        .duration(6000)
+        .style('opacity', 0);
+
+      this.plan = plan;
+    });
+    setTimeout(this.tickCmd, this.cmdLengthMs);
   }
 
   private loadDataIfRequired = () => {
@@ -333,8 +361,6 @@ export class D3PlaneMap {
       .attr('opacity', 0)
       .remove();
 
-
-
     d3.select('#clock')
       .text(this.renderClockText());
   }
@@ -414,6 +440,34 @@ export class D3PlaneMap {
       return this.currentTime.format('dddd h:mma');
     }
     return this.currentTime.format('MMMM D h:mma');
+  }
+
+  private static feedbackMessage = (
+    currentPlan: MapPlan,
+    newPlan: MapPlan) => {
+    const name = R.pipe(
+      R.trim,
+      D3PlaneMap.capitalizeFirstLetter
+    )(newPlan.controller);
+    if (name == 'erik' || name == '') { return 'EMPTY'; }
+    if (currentPlan.timeFactor < newPlan.timeFactor) {
+      return `${name} sped up time to ${Math.floor(newPlan.timeFactor)}x`;
+    }
+    if (currentPlan.timeFactor > newPlan.timeFactor) {
+      return `${name} slowed time to ${Math.floor(newPlan.timeFactor)}x`;
+    }
+    if (currentPlan.loop != newPlan.loop) {
+      if (newPlan.loop) {
+        return `${name} looped time`;
+      } else {
+        return `${name} unlooped time`;
+      }
+    }
+    return '';
+  }
+
+  private static capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
 
 }

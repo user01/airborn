@@ -31,7 +31,7 @@ export class Utility {
 // Play from time until reaching present time (or end time), then if cycling set time back to start, otherwise set to real time (1)
 
 export interface MapPlan {
-  index: number; // index of current command, just to tell if it changed
+  index: string; // ISO String of latest current command, just to tell if it changed
   timeFactor: number; //rate factor
   loop: boolean; // should it loop on end or stay at Live
   locked?: boolean; // prevent further updates until unlock
