@@ -13,7 +13,7 @@ const templates = require('./templates.js');
 
 
 
-const currentMapPlan = {
+let currentMapPlan = {
   index: 0,
   timeFactor: 45,
   loop: true,
