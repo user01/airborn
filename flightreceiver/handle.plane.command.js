@@ -65,7 +65,8 @@ const handlePlaneCommand = (cmdStr, name) => {
       controller: name != 'erik' ? name : ''
     }
   );
-  return Promise.resolve('Successfully updated state.');
+  return Promise.resolve(
+    `Successfully updated state. Now at ${currentMapPlan.timeFactor}x and will ${currentMapPlan.loop ? '' : 'not '}loop.`);
 }
 
 const currentMapState = (req, res, next) => {
