@@ -62,7 +62,7 @@ const handlePlaneCommand = (cmdStr, name) => {
     {
       index: moment().toISOString(),
       id: currentMapPlan.id + 1,
-      controller: name
+      controller: name != 'erik' ? name : ''
     }
   );
   return Promise.resolve('Successfully updated state.');
