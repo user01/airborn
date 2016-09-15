@@ -51,7 +51,7 @@ const handlePlaneCommand = (cmdStr, name) => {
       const loop = R.pipe(
         R.trim,
         R.toLower,
-        R.equal('true')
+        R.equals('true')
       )(parameters);
       currentMapPlan = R.merge(currentMapPlan, { loop });
       break;
