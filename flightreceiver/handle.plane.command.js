@@ -48,8 +48,9 @@ const handlePlaneCommand = (cmdStr, name) => {
   return Promise.resolve('Successfully updated state');
 }
 
-const currentMapState = () => {
-  return currentMapPlan;
+const currentMapState = (req, res, next) => {
+  res.send(currentMapPlan);
+  return next();
 }
 
 
