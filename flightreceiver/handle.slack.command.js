@@ -15,6 +15,7 @@ const slackCommandsDb = Promise.promisifyAll(new Datastore({
 
 
 const validTokens = [
+  'i8bmRe3cw6YHnFYSQb9a2bBe', // msds /data
   'U59APMRWFvXoVd4bRv6i9f3w', // msds
   'M4gaVdees0u1l1EV7ctbtpLD'  // sandbox
 ]
