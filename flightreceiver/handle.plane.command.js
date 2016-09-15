@@ -14,7 +14,7 @@ const templates = require('./templates.js');
 
 
 let currentMapPlan = {
-  index: 0,
+  index: moment().toISOString(),
   timeFactor: 45,
   loop: true,
   locked: false,
@@ -38,18 +38,34 @@ const handlePlaneCommand = (cmdStr, name) => {
 
   switch (cmd) {
     case 'speed':
-      const newFactor = R.pipe(
+    case 'factor':
+      const timeFactor = R.pipe(
         parseInt,
         R.defaultTo(45),
         R.min(120),
         R.max(1)
       )(parameters);
-      currentMapPlan = R.merge(currentMapPlan, { timeFactor: newFactor, controller: name });
+      currentMapPlan = R.merge(currentMapPlan, { timeFactor });
+      break;
+    case 'loop':
+      const loop = R.pipe(
+        R.trim,
+        R.toLower,
+        R.equal('true')
+      )(parameters);
+      currentMapPlan = R.merge(currentMapPlan, { loop });
       break;
     default:
       return Promise.resolve(templates.badCommand(cmd, name));
   }
-  return Promise.resolve('Successfully updated state');
+  currentMapPlan = R.merge(currentMapPlan,
+    {
+      index: moment().toISOString(),
+      id: currentMapPlan.id + 1,
+      controller: name
+    }
+  );
+  return Promise.resolve('Successfully updated state.');
 }
 
 const currentMapState = (req, res, next) => {
