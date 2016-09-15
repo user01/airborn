@@ -22,6 +22,10 @@ const currentMapPlan = {
 };
 const parseCommand = /\s*(\w+)\s*(.*)/;
 
+const isNullOrWhitespace = (input) => {
+  return !input || !input.trim();
+}
+
 const handlePlaneCommand = (cmdStr, name) => {
   // this maintains 2 basic things: a running set of all accepted commands and the current full command
   //
